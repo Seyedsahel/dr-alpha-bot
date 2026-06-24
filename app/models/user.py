@@ -34,3 +34,13 @@ class User(db.Model):
         "Appointment",
         backref="user",
         lazy=True)
+    
+    consultations = db.relationship(
+        "Consultation",
+        backref="user",
+        lazy=True)
+
+    reminders = db.relationship(
+        "Reminder",
+        backref="user",
+        lazy=True)
