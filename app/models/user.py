@@ -30,3 +30,7 @@ class User(db.Model):
         db.DateTime,
         default=datetime.utcnow)
     
+    appointments = db.relationship(
+        "Appointment",
+        backref="user",
+        lazy=True)

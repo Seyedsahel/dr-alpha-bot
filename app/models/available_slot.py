@@ -25,3 +25,8 @@ class AvailableSlot(db.Model):
         db.DateTime,
         default=datetime.utcnow
     )
+
+    appointment = db.relationship(
+        "Appointment",
+        backref="slot",
+        uselist=False) #one to one
