@@ -1,0 +1,1 @@
+from .slots import admin_slots_bp

@@ -11,5 +11,11 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
+    from app.routes.admin import admin_slots_bp
+
+    app.register_blueprint(
+        admin_slots_bp,
+        url_prefix="/api/admin")
+
 
     return app
