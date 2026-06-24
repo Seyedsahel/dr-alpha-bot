@@ -1,0 +1,1 @@
+from .slots import bot_slots_bp
