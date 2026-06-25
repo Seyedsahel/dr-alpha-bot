@@ -19,34 +19,35 @@ def get_aftercares():
     result = []
 
     for aftercare in aftercares:
-
         result.append({
-            "id":aftercare.id,
-            "service_name":aftercare.service_name,
-            "content":aftercare.content
+            "id": aftercare.id,
+            "service_id": aftercare.service_id,
+            "service_name": aftercare.service.name if aftercare.service else None,
+            "content": aftercare.content,
+            "is_active": aftercare.is_active
         })
+
 
     return result,200
 
-@admin_aftercares_bp.route(
-    "/aftercares",
-    methods=["POST"]
-)
+@admin_aftercares_bp.route("/aftercares",
+    methods=["POST"])
 def create_aftercare():
 
     data = request.get_json()
 
-    service_name = data.get("service_name")
+    service_id = data.get("service_id")
     content = data.get("content")
 
-    if not service_name or not content:
+    if not service_id or not content:
+        return {"error": "service_id and content are required"}, 400
 
-        return {
-            "error":"service_name and content are required"
-        },400
+    exists = AfterCare.query.filter_by(service_id=service_id).first()
+    if exists:
+        return {"error": "aftercare already exists for this service"}, 400
 
     aftercare = AfterCare(
-        service_name=service_name,
+        service_id=service_id,
         content=content
     )
 
@@ -54,55 +55,43 @@ def create_aftercare():
     db.session.commit()
 
     return {
-        "message":"aftercare created",
-        "aftercare_id":aftercare.id
-    },201
+        "message": "aftercare created",
+        "aftercare_id": aftercare.id
+    }, 201
 
-@admin_aftercares_bp.route(
-    "/aftercares/<int:aftercare_id>",
-    methods=["PATCH"]
-)
+@admin_aftercares_bp.route("/aftercares/<int:aftercare_id>", methods=["PATCH"])
 def update_aftercare(aftercare_id):
 
     aftercare = AfterCare.query.get(aftercare_id)
 
     if not aftercare:
-
-        return {
-            "error":"aftercare not found"
-        },404
+        return {"error": "aftercare not found"}, 404
 
     data = request.get_json()
 
-    if "service_name" in data:
-        aftercare.service_name = data["service_name"]
+    if "service_id" in data:
+        aftercare.service_id = data["service_id"]
 
     if "content" in data:
         aftercare.content = data["content"]
 
+    if "is_active" in data:
+        aftercare.is_active = data["is_active"]
+
     db.session.commit()
 
-    return {
-        "message":"aftercare updated"
-    },200
+    return {"message": "aftercare updated"}, 200
 
-@admin_aftercares_bp.route(
-    "/aftercares/<int:aftercare_id>",
-    methods=["DELETE"]
-)
+@admin_aftercares_bp.route("/aftercares/<int:aftercare_id>", methods=["DELETE"])
 def delete_aftercare(aftercare_id):
 
     aftercare = AfterCare.query.get(aftercare_id)
 
     if not aftercare:
+        return {"error": "aftercare not found"}, 404
 
-        return {
-            "error":"aftercare not found"
-        },404
+    aftercare.is_active = False
 
-    db.session.delete(aftercare)
     db.session.commit()
 
-    return {
-        "message":"aftercare deleted"
-    },200
+    return {"message": "aftercare deactivated"}, 200

@@ -21,29 +21,30 @@ def get_aftercares():
 
         result.append({
             "id": aftercare.id,
-            "service_name": aftercare.service_name
+            "service_id": aftercare.service_id,
+            "service_name": aftercare.service.name if aftercare.service else None
         })
 
     return result, 200
 
+
 @aftercares_bp.route(
-    "/aftercares/<string:service_name>",
-    methods=["GET"]
-)
-def get_aftercare(service_name):
+    "/aftercares/<int:service_id>",
+    methods=["GET"])
+
+def get_aftercare(service_id):
 
     aftercare = AfterCare.query.filter_by(
-        service_name=service_name
+        service_id=service_id,
+        is_active=True
     ).first()
 
     if not aftercare:
-
-        return {
-            "error":"aftercare not found"
-        },404
+        return {"error": "aftercare not found"}, 404
 
     return {
-        "id":aftercare.id,
-        "service_name":aftercare.service_name,
-        "content":aftercare.content
-    },200
+        "id": aftercare.id,
+        "service_id": aftercare.service_id,
+        "service_name": aftercare.service.name if aftercare.service else None,
+        "content": aftercare.content
+    }, 200
