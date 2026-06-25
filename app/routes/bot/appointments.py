@@ -1,0 +1,52 @@
+from flask import Blueprint, request
+from app.extensions import db
+from app.models.appoinment import Appointment
+from app.models.available_slot import AvailableSlot
+
+
+appointments_bp = Blueprint(
+    "appointments",
+    __name__
+)
+
+@appointments_bp.route(
+    "/appointments",
+    methods=["POST"]
+)
+def create_appointment():
+
+    data = request.get_json()
+
+    user_id = data.get("user_id")
+    slot_id = data.get("slot_id")
+    service = data.get("service")
+    description = data.get("description")
+
+    slot = AvailableSlot.query.get(slot_id)
+
+    if not slot:
+        return {
+            "error": "زمان خالی وجود ندارد"
+        }, 404
+
+    if slot.is_booked:
+        return {
+            "error": "این نوبت پر شده است"
+        }, 400
+
+    appointment = Appointment(
+        user_id=user_id,
+        slot_id=slot_id,
+        service=service,
+        description=description
+    )
+
+    slot.is_booked = True
+
+    db.session.add(appointment)
+    db.session.commit()
+
+    return {
+        "message": "نوبت ثبت شد",
+        "appointment_id": appointment.id
+    }, 201

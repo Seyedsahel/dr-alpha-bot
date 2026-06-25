@@ -12,17 +12,20 @@ def create_app():
     migrate.init_app(app, db)
 
     from app.routes.admin import admin_slots_bp
-
     app.register_blueprint(
         admin_slots_bp,
         url_prefix="/api/admin")
     
     from app.routes.bot import bot_slots_bp
-
     app.register_blueprint(
         bot_slots_bp,
         url_prefix="/api"
     )
+
+    from app.routes.bot import appointments_bp
+    app.register_blueprint(
+        appointments_bp,
+        url_prefix="/api")
 
 
     return app
