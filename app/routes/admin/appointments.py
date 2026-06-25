@@ -73,7 +73,6 @@ def update_appointment_status(appointment_id):
     appointment.status = status
     
     if status == "rejected":
-        appointment.user = None
         appointment.slot.is_booked = False
     else:
         appointment.slot.is_booked = True

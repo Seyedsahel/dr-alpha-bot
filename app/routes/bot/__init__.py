@@ -1,2 +1,3 @@
 from .slots import bot_slots_bp
 from .appointments import appointments_bp
+from .consultations import consultations_bp
