@@ -136,7 +136,14 @@ GET /api/festivals
 ### API ادمین
 
 ```
-POST   /api/admin/servicesGET    /api/admin/servicesPUT    /api/admin/services/<id>DELETE /api/admin/services/<id>
+GET    /api/services
+GET    /api/admin/services
+
+POST   /api/admin/services
+
+PATCH  /api/admin/services/<id>
+
+DELETE /api/admin/services/<id>
 ```
 
 ---
