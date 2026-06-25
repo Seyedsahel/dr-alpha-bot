@@ -4,3 +4,4 @@ from .consultations import admin_consultations_bp
 from .services import admin_services_bp
 from .faqs import admin_faqs_bp
 from .aftercares import admin_aftercares_bp
+from .festivals import admin_festivals_bp

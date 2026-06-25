@@ -75,6 +75,18 @@ def create_app():
         aftercares_bp,
         url_prefix="/api"
     )
+
+    from app.routes.bot import festivals_bp
+    app.register_blueprint(
+        festivals_bp,
+        url_prefix="/api"
+    )
+
+    from app.routes.admin import admin_festivals_bp
+    app.register_blueprint(
+        admin_festivals_bp,
+        url_prefix="/api/admin"
+    )
     
 
     return app
