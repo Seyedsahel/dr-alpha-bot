@@ -4,3 +4,6 @@ from .appoinment import Appointment
 from .consultation import Consultation
 from .reminder import Reminder
 from .festival import Festival
+from .service import Service
+from .faq import FAQ
+from .aftercare import AfterCare
