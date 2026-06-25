@@ -11,14 +11,22 @@ class AfterCare(db.Model):
         primary_key=True
     )
 
-    service_name = db.Column(
-        db.String(150),
-        nullable=False
+    
+    service_id = db.Column(
+        db.Integer,
+        db.ForeignKey("services.id"),
+        nullable=False,
+        unique=True
     )
 
     content = db.Column(
         db.Text,
         nullable=False
+    )
+
+    is_active = db.Column(
+        db.Boolean,
+        default=True
     )
 
     created_at = db.Column(

@@ -32,6 +32,12 @@ class Service(db.Model):
         default=True
     )
 
+    aftercare = db.relationship(
+        "AfterCare",
+        backref="service",
+        uselist=False
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

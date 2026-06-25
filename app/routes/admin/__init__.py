@@ -2,3 +2,5 @@ from .slots import admin_slots_bp
 from .appointments import admin_appointments_bp
 from .consultations import admin_consultations_bp
 from .services import admin_services_bp
+from .faqs import admin_faqs_bp
+from .aftercares import admin_aftercares_bp

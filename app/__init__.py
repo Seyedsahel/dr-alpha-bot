@@ -53,7 +53,28 @@ def create_app():
         services_bp,
         url_prefix="/api"
     )
+
+    from app.routes.admin import admin_faqs_bp
+    app.register_blueprint(
+        admin_faqs_bp,
+        url_prefix="/api/admin")
+
+    from app.routes.bot import faqs_bp
+    app.register_blueprint(
+        faqs_bp,
+        url_prefix="/api"
+    )
     
+    from app.routes.admin import admin_aftercares_bp
+    app.register_blueprint(
+        admin_aftercares_bp,
+        url_prefix="/api/admin"
+    )
+    from app.routes.bot import aftercares_bp
+    app.register_blueprint(
+        aftercares_bp,
+        url_prefix="/api"
+    )
     
 
     return app
