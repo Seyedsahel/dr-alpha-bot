@@ -19,9 +19,16 @@ def get_appointments():
 
     for appointment in appointments:
 
+        full_name = ""
+        if appointment.user:
+            first_name = appointment.user.first_name or ""
+            last_name = appointment.user.last_name or ""
+            full_name = f"{first_name} {last_name}".strip()
+
         result.append({
             "id": appointment.id,
-            "user_id": appointment.user_id,
+            "name": full_name,
+            "phone": appointment.user.phone if appointment.user else None,
             "service": appointment.service,
             "status": appointment.status,
             "slot_time": appointment.slot.start_time.strftime(
