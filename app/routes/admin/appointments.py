@@ -1,6 +1,7 @@
-from flask import Blueprint
+from flask import Blueprint, request
 
 from app.models.appoinment import Appointment
+from app.extensions import db
 
 admin_appointments_bp = Blueprint(
     "admin_appointments",
@@ -37,3 +38,49 @@ def get_appointments():
         })
 
     return result, 200
+
+
+@admin_appointments_bp.route(
+    "/appointments/<int:appointment_id>",
+    methods=["PATCH"]
+)
+def update_appointment_status(appointment_id):
+
+    appointment = Appointment.query.get(
+        appointment_id
+    )
+
+    if not appointment:
+        return {
+            "error": "نوبت پیدا نشد"
+        }, 404
+
+    data = request.get_json()
+
+    status = data.get("status")
+
+    allowed_statuses = [
+        "pending",
+        "confirmed",
+        "rejected"
+    ]
+
+    if status not in allowed_statuses:
+        return {
+            "error": "invalid status"
+        }, 400
+
+    appointment.status = status
+    
+    if status == "rejected":
+        appointment.user = None
+        appointment.slot.is_booked = False
+    else:
+        appointment.slot.is_booked = True
+
+    db.session.commit()
+
+    return {
+        "message": "appointment updated",
+        "status": appointment.status
+    }, 200
