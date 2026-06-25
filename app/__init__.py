@@ -41,6 +41,18 @@ def create_app():
         consultations_bp,
         url_prefix="/api"
     )
+
+    from app.routes.admin import admin_services_bp
+    app.register_blueprint(
+        admin_services_bp,
+        url_prefix="/api/admin"
+    )
+
+    from app.routes.bot import services_bp
+    app.register_blueprint(
+        services_bp,
+        url_prefix="/api"
+    )
     
     
 
