@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 
+from app.models import service
 from app.models.service import Service
 from app.extensions import db
 
@@ -66,7 +67,7 @@ def create_service():
     return {
         "message": "service created",
         "service_id": service.id
-    }, 
+    }, 201
 
 @admin_services_bp.route(
     "/services/<int:service_id>",
@@ -84,6 +85,14 @@ def update_service(service_id):
         }, 404
 
     data = request.get_json()
+    existing_service = Service.query.filter_by(
+    name=data["name"]
+    ).first()
+
+    if existing_service and existing_service.id != service.id:
+        return {
+            "error": "service name already exists"
+        }, 409
 
     if "name" in data:
         service.name = data["name"]
