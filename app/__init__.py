@@ -1,15 +1,30 @@
 from flask import Flask
 from .extensions import db, migrate
 from app.models import *
+import os
 
 def create_app():
     app = Flask(__name__)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///clinic.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["UPLOAD_FOLDER"] = os.path.join(
+        app.root_path,
+        "uploads")
+    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
+    os.makedirs(
+        os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            "festivals"
+        ), exist_ok=True
+    )
 
     db.init_app(app)
     migrate.init_app(app, db)
+
+    from app.routes.uploads import uploads_bp
+    app.register_blueprint(uploads_bp)
 
     from app.routes.admin import (admin_slots_bp, admin_appointments_bp, admin_consultations_bp)
     app.register_blueprint(
