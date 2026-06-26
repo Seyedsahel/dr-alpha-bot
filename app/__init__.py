@@ -102,6 +102,12 @@ def create_app():
         admin_festivals_bp,
         url_prefix="/api/admin"
     )
+
+    from app.routes.bot import reminders_bp
+    app.register_blueprint(
+        reminders_bp,
+        url_prefix="/api"
+    )
     
 
     return app

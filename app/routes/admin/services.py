@@ -55,11 +55,20 @@ def create_service():
             "error": "service already exists"
         }, 409
 
+    recovery_days = data.get("recovery_days")
+    if recovery_days is None:
+        return {
+            "error": "recovery_days is required"
+        }, 400
+
     service = Service(
         name=name,
         price=data.get("price"),
-        description=data.get("description")
+        description=data.get("description"),
+        recovery_days=int(data.get("recovery_days"))
     )
+    print("RAW DATA:", request.data)
+    print("JSON:", request.get_json())
 
     db.session.add(service)
     db.session.commit()
@@ -105,6 +114,9 @@ def update_service(service_id):
 
     if "is_active" in data:
         service.is_active = data["is_active"]
+    
+    if "recovery_days" in data:
+        service.recovery_days = int(data["recovery_days"])
 
     db.session.commit()
 
