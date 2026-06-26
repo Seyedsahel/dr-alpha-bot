@@ -17,9 +17,10 @@ class Reminder(db.Model):
         nullable=False
     )
 
-    service = db.Column(
-        db.String(150),
-        nullable=False
+    service_id = db.Column(
+        db.Integer, 
+        db.ForeignKey("services.id"), 
+        nullable=True
     )
 
     procedure_date = db.Column(

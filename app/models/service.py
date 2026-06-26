@@ -32,6 +32,17 @@ class Service(db.Model):
         default=True
     )
 
+    recovery_days = db.Column(
+        db.Integer, 
+        nullable=True
+    )
+
+    reminders = db.relationship(
+        "Reminder",
+        backref="service",
+        lazy=True
+    )
+
     aftercare = db.relationship(
         "AfterCare",
         backref="service",
