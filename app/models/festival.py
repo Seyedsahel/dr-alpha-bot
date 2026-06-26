@@ -21,6 +21,11 @@ class Festival(db.Model):
         nullable=False
     )
 
+    image_path = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
     is_active = db.Column(
         db.Boolean,
         default=True
