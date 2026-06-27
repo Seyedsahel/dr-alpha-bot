@@ -1,199 +1,348 @@
 
+---
 
-## 1. ساخت Slot
+# 1) Services
 
-```http
-POST /api/admin/slots
-```
-
-مثال:
+### Bot
 
 ```bash
-curl -X POST \
-http://127.0.0.1:5000/api/admin/slots \
+curl http://localhost:5000/api/services
+```
+
+---
+
+### Admin GET
+
+```bash
+curl http://localhost:5000/api/admin/services
+```
+
+---
+
+### Admin POST
+
+```bash
+curl -X POST http://localhost:5000/api/admin/services \
 -H "Content-Type: application/json" \
 -d '{
-  "start_time":"2026-07-10 10:00"
-}'
-```
-
-باید:
-
-```json
-{
-  "message":"slot created",
-  "slot_id":1
-}
-```
-
-برگرده.
-
----
-
-## 2. مشاهده Slot های آزاد
-
-```http
-GET /api/slots
-```
-
-```bash
-curl http://127.0.0.1:5000/api/slots
-```
-
-باید Slot ساخته شده را ببینی.
-
----
-
-## 3. ساخت Appointment
-
-```http
-POST /api/appointments
-```
-
-```bash
-curl -X POST \
-http://127.0.0.1:5000/api/appointments \
--H "Content-Type: application/json" \
--d '{
-  "user_id":1,
-  "slot_id":1,
-  "service":"بوتاکس",
-  "description":"اولین مراجعه"
-}'
-```
-
-باید:
-
-```json
-{
-  "message":"appointment created",
-  "appointment_id":1
-}
-```
-
-برگرده.
-
----
-
-## 4. بررسی رزرو شدن Slot
-
-دوباره:
-
-```bash
-curl http://127.0.0.1:5000/api/slots
-```
-
-باید Slot شماره 1 دیگر در لیست نباشد.
-
----
-
-## 5. مشاهده Appointment ها توسط ادمین
-
-```http
-GET /api/admin/appointments
-```
-
-```bash
-curl http://127.0.0.1:5000/api/admin/appointments
-```
-
-باید چیزی شبیه:
-
-```json
-[
-  {
-    "id":1,
-    "name":"علی محمدی",
-    "phone":"0912...",
-    "service":"بوتاکس",
-    "status":"pending",
-    "slot_time":"2026-07-10 10:00"
-  }
-]
-```
-
-برگردد.
-
----
-
-## 6. تایید Appointment
-
-```http
-PATCH /api/admin/appointments/1
-```
-
-```bash
-curl -X PATCH \
-http://127.0.0.1:5000/api/admin/appointments/1 \
--H "Content-Type: application/json" \
--d '{
-  "status":"confirmed"
+    "name":"خدمت تست",
+    "price":1500000,
+    "description":"توضیحات تست",
+    "recovery_days":90
 }'
 ```
 
 ---
 
-## 7. رد Appointment
+### Admin PATCH
 
 ```bash
-curl -X PATCH \
-http://127.0.0.1:5000/api/admin/appointments/1 \
+curl -X PATCH http://localhost:5000/api/admin/services/1 \
 -H "Content-Type: application/json" \
 -d '{
-  "status":"rejected"
-}'
-```
-
-بعدش:
-
-```bash
-curl http://127.0.0.1:5000/api/slots
-```
-
-باید دوباره Slot آزاد شده باشد.
-
----
-
-## 8. ثبت Consultation
-
-```http
-POST /api/consultations
-```
-
-```bash
-curl -X POST \
-http://127.0.0.1:5000/api/consultations \
--H "Content-Type: application/json" \
--d '{
-  "user_id":1,
-  "service":"ژل لب",
-  "note":"درباره ماندگاری سوال دارم"
+    "price":2500000,
+    "description":"آپدیت شد",
+    "recovery_days":120
 }'
 ```
 
 ---
 
-## 9. مشاهده Consultation ها
-
-```http
-GET /api/admin/consultations
-```
+### Admin DELETE
 
 ```bash
-curl http://127.0.0.1:5000/api/admin/consultations
+curl -X DELETE http://localhost:5000/api/admin/services/1
 ```
 
 ---
 
-## 10. تغییر وضعیت Consultation
+# 2) FAQs
+
+### Bot
 
 ```bash
-curl -X PATCH \
-http://127.0.0.1:5000/api/admin/consultations/1 \
+curl http://localhost:5000/api/faqs
+```
+
+---
+
+### Admin GET
+
+```bash
+curl http://localhost:5000/api/admin/faqs
+```
+
+---
+
+### Admin POST
+
+```bash
+curl -X POST http://localhost:5000/api/admin/faqs \
 -H "Content-Type: application/json" \
 -d '{
-  "status":"called"
+    "question":"تست؟",
+    "answer":"بله"
 }'
 ```
 
 ---
+
+### PATCH
+
+```bash
+curl -X PATCH http://localhost:5000/api/admin/faqs/1 \
+-H "Content-Type: application/json" \
+-d '{
+    "answer":"جواب جدید"
+}'
+```
+
+---
+
+### DELETE
+
+```bash
+curl -X DELETE http://localhost:5000/api/admin/faqs/1
+```
+
+---
+
+# 3) AfterCare
+
+### Bot List
+
+```bash
+curl http://localhost:5000/api/aftercares
+```
+
+---
+
+### Bot Single
+
+```bash
+curl http://localhost:5000/api/aftercares/1
+```
+
+---
+
+### Admin GET
+
+```bash
+curl http://localhost:5000/api/admin/aftercares
+```
+
+---
+
+### POST
+
+```bash
+curl -X POST http://localhost:5000/api/admin/aftercares \
+-H "Content-Type: application/json" \
+-d '{
+    "service_id":2,
+    "content":"تا ۴۸ ساعت ورزش نکنید."
+}'
+```
+
+---
+
+### PATCH
+
+```bash
+curl -X PATCH http://localhost:5000/api/admin/aftercares/1 \
+-H "Content-Type: application/json" \
+-d '{
+    "content":"مراقبت جدید"
+}'
+```
+
+---
+
+### DELETE
+
+```bash
+curl -X DELETE http://localhost:5000/api/admin/aftercares/1
+```
+
+---
+
+# 4) Festivals
+
+### Bot
+
+```bash
+curl http://localhost:5000/api/festivals
+```
+
+---
+
+### Admin
+
+```bash
+curl http://localhost:5000/api/admin/festivals
+```
+
+---
+
+### POST
+
+```bash
+curl -X POST http://localhost:5000/api/admin/festivals \
+-F "title=جشنواره تابستان" \
+-F "description=۳۰ درصد تخفیف" \
+-F "image=@/home/mors/Downloads/image.jpg"
+```
+
+---
+
+### PATCH
+
+```bash
+curl -X PATCH http://localhost:5000/api/admin/festivals/1 \
+-F "title=آپدیت جشنواره" \
+-F "is_active=true"
+```
+
+---
+
+### DELETE
+
+```bash
+curl -X DELETE http://localhost:5000/api/admin/festivals/1
+```
+
+---
+
+# 5) Available Slots
+
+### Bot
+
+```bash
+curl http://localhost:5000/api/slots
+```
+
+---
+
+### Admin POST
+
+```bash
+curl -X POST http://localhost:5000/api/admin/slots \
+-H "Content-Type: application/json" \
+-d '{
+    "start_time":"2026-08-01 09:00"
+}'
+```
+
+---
+
+# 6) Appointment
+
+### POST
+
+```bash
+curl -X POST http://localhost:5000/api/appointments \
+-H "Content-Type: application/json" \
+-d '{
+    "user_id":1,
+    "slot_id":1,
+    "service_id":2
+}'
+```
+
+---
+
+### Admin GET
+
+```bash
+curl http://localhost:5000/api/admin/appointments
+```
+
+---
+
+### PATCH Status
+
+```bash
+curl -X PATCH http://localhost:5000/api/admin/appointments/1 \
+-H "Content-Type: application/json" \
+-d '{
+    "status":"confirmed"
+}'
+```
+
+---
+
+# 7) Consultation
+
+### POST
+
+```bash
+curl -X POST http://localhost:5000/api/consultations \
+-H "Content-Type: application/json" \
+-d '{
+    "user_id":1,
+    "message":"مشاوره برای بوتاکس"
+}'
+```
+
+---
+
+### Admin GET
+
+```bash
+curl http://localhost:5000/api/admin/consultations
+```
+
+---
+
+### PATCH
+
+```bash
+curl -X PATCH http://localhost:5000/api/admin/consultations/1 \
+-H "Content-Type: application/json" \
+-d '{
+    "status":"called"
+}'
+```
+
+---
+
+# 8) Reminder
+
+### POST
+
+```bash
+curl -X POST http://localhost:5000/api/reminders \
+-H "Content-Type: application/json" \
+-d '{
+    "user_id":1,
+    "service_id":2,
+    "procedure_date":"2026-06-26"
+}'
+```
+
+---
+
+### Bot GET
+
+```bash
+curl http://localhost:5000/api/reminders/1
+```
+
+---
+
+### Admin GET List
+
+```bash
+curl http://localhost:5000/api/admin/reminders
+```
+
+---
+
+### Admin GET One
+
+```bash
+curl http://localhost:5000/api/admin/reminders/1
+```
+
+---
+
