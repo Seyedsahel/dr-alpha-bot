@@ -48,11 +48,6 @@ def create_reminder():
             "error": "service not found"
         }, 404
 
-    if service.recovery_days is None:
-
-        return {
-            "error": "service recovery days not set"
-        }, 400
 
     exists = Reminder.query.filter_by(
         user_id=user_id,
@@ -78,9 +73,10 @@ def create_reminder():
         return {
             "error": "invalid date format"
         }, 400
-
+    
+    recovery_days = service.recovery_days or 30
     repair_date = procedure_date + timedelta(
-        days=service.recovery_days
+        days=recovery_days
     )
 
     reminder_date = repair_date - timedelta(
