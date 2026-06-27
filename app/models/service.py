@@ -49,6 +49,12 @@ class Service(db.Model):
         uselist=False
     )
 
+    appointments = db.relationship(
+        "Appointment",
+        backref="service",
+        lazy=True
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

@@ -23,8 +23,9 @@ class Appointment(db.Model):
         nullable=False
     )
 
-    service = db.Column(
-        db.String(150),
+    service_id = db.Column(
+        db.Integer,
+        db.ForeignKey("services.id"),
         nullable=False
     )
 

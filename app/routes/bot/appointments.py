@@ -19,7 +19,7 @@ def create_appointment():
 
     user_id = data.get("user_id")
     slot_id = data.get("slot_id")
-    service = data.get("service")
+    service_id = data.get("service_id")
     description = data.get("description")
 
     slot = AvailableSlot.query.get(slot_id)
@@ -33,11 +33,16 @@ def create_appointment():
         return {
             "error": "این نوبت پر شده است"
         }, 400
+    
+    if not service_id:
+        return {
+            "error": "لطفا یک سرویس انتخاب کنید"
+        }, 400
 
     appointment = Appointment(
         user_id=user_id,
         slot_id=slot_id,
-        service=service,
+        service_id=service_id,
         description=description
     )
 

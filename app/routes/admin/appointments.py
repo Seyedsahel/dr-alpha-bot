@@ -30,7 +30,8 @@ def get_appointments():
             "id": appointment.id,
             "name": full_name,
             "phone": appointment.user.phone if appointment.user else None,
-            "service": appointment.service,
+            "service_name": appointment.service.name,
+            "service_id": appointment.service_id,
             "status": appointment.status,
             "slot_time": appointment.slot.start_time.strftime(
                 "%Y-%m-%d %H:%M"
