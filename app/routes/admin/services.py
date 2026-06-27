@@ -94,16 +94,17 @@ def update_service(service_id):
         }, 404
 
     data = request.get_json()
-    existing_service = Service.query.filter_by(
-    name=data["name"]
-    ).first()
-
-    if existing_service and existing_service.id != service.id:
-        return {
-            "error": "service name already exists"
-        }, 409
 
     if "name" in data:
+        existing_service = Service.query.filter_by(
+        name=data["name"]
+        ).first()
+
+        if existing_service and existing_service.id != service.id:
+            return {
+                "error": "service name already exists"
+            }, 409
+
         service.name = data["name"]
 
     if "price" in data:
