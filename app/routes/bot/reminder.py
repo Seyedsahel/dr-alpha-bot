@@ -103,3 +103,41 @@ def create_reminder():
         "repair_date": repair_date.isoformat(),
         "reminder_date": reminder_date.isoformat()
     }, 201
+
+
+
+@reminders_bp.route(
+    "/reminders/<int:user_id>",
+    methods=["GET"]
+)
+def get_user_reminders(user_id):
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return {
+            "error": "user not found"
+        }, 404
+
+    reminders = Reminder.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    result = []
+
+    for reminder in reminders:
+        if reminder.sent:
+            continue
+
+        result.append({
+            "id": reminder.id,
+            "user_id": reminder.user_id,
+            "service_id": reminder.service_id,
+            "service_name": reminder.service.name if reminder.service else None,
+            "procedure_date": reminder.procedure_date.isoformat(),
+            "reminder_date": reminder.reminder_date.isoformat(),
+            "sent": reminder.sent,
+            "created_at": reminder.created_at.isoformat()
+        })
+
+    return result, 200
