@@ -108,6 +108,12 @@ def create_app():
         reminders_bp,
         url_prefix="/api"
     )
+
+    from app.routes.admin import admin_reminders_bp
+    app.register_blueprint(
+        admin_reminders_bp,
+        url_prefix="/api/admin" 
+    )
     
 
     return app
