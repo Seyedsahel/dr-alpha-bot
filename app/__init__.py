@@ -114,6 +114,12 @@ def create_app():
         admin_reminders_bp,
         url_prefix="/api/admin" 
     )
+
+    from app.routes.bot import users_bp
+    app.register_blueprint(
+        users_bp,
+        url_prefix="/api"
+    )
     
     from app.scheduler.reminder_worker import start_worker
     start_worker(app)

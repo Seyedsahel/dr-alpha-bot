@@ -8,7 +8,9 @@ festivals_bp = Blueprint("festivals", __name__)
     methods=["GET"])
 def get_festivals():
 
-    festivals = Festival.query.filter_by(is_active=True).all()
+    # festivals = Festival.query.filter_by(is_active=True).all()
+    festivals = Festival.query.all()
+
 
     result = []
 

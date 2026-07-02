@@ -6,3 +6,4 @@ from .faqs import faqs_bp
 from .aftercares import aftercares_bp
 from .festivals import festivals_bp
 from .reminder import reminders_bp
+from .users import users_bp
