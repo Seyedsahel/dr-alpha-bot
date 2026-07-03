@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from flask import Blueprint, request
 
@@ -137,3 +137,52 @@ def get_user_reminders(user_id):
         })
 
     return result, 200
+
+
+@reminders_bp.route(
+    "/reminders/due",
+    methods=["GET"]
+)
+def get_due_reminders():
+
+    today = date.today()
+
+    reminders = Reminder.query.filter(
+        Reminder.sent == False,
+        Reminder.reminder_date <= today
+    ).all()
+
+    result = []
+
+    for reminder in reminders:
+
+        result.append({
+            "id": reminder.id,
+            "chat_id": reminder.user.chat_id,
+            "first_name": reminder.user.first_name,
+            "service_name": reminder.service.name if reminder.service else None
+        })
+
+    return result, 200
+
+
+@reminders_bp.route(
+    "/reminders/<int:reminder_id>/mark-sent",
+    methods=["POST"]
+)
+def mark_reminder_sent(reminder_id):
+
+    reminder = Reminder.query.get(reminder_id)
+
+    if not reminder:
+        return {
+            "error": "reminder not found"
+        }, 404
+
+    reminder.sent = True
+
+    db.session.commit()
+
+    return {
+        "message": "reminder marked as sent"
+    }, 200
