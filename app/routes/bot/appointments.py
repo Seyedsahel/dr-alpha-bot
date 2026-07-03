@@ -55,3 +55,29 @@ def create_appointment():
         "message": "نوبت ثبت شد",
         "appointment_id": appointment.id
     }, 201
+
+@appointments_bp.route(
+    "/appointments/<int:user_id>",
+    methods=["GET"]
+)
+def get_user_appointments(user_id):
+
+    appointments = Appointment.query.filter_by(
+        user_id=user_id
+    ).order_by(
+        Appointment.created_at.desc()
+    ).all()
+
+    result = []
+
+    for appointment in appointments:
+
+        result.append({
+            "id": appointment.id,
+            "service_name": appointment.service.name if appointment.service else None,
+            "slot_time": appointment.slot.start_time.isoformat() if appointment.slot else None,
+            "status": appointment.status,
+            "created_at": appointment.created_at.isoformat()
+        })
+
+    return result, 200

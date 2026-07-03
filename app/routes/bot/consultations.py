@@ -36,3 +36,29 @@ def create_consultation():
         "message": "consultation created",
         "consultation_id": consultation.id
     }, 201
+
+@consultations_bp.route(
+    "/consultations/<int:user_id>",
+    methods=["GET"]
+)
+def get_user_consultations(user_id):
+
+    consultations = Consultation.query.filter_by(
+        user_id=user_id
+    ).order_by(
+        Consultation.created_at.desc()
+    ).all()
+
+    result = []
+
+    for consultation in consultations:
+
+        result.append({
+            "id": consultation.id,
+            "service": consultation.service,
+            "note": consultation.note,
+            "status": consultation.status,
+            "created_at": consultation.created_at.isoformat()
+        })
+
+    return result, 200
