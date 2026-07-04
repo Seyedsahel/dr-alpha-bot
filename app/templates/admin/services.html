@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">خدمات کلینیک</h3>
+
+<div class="card p-3 mb-4">
+    <h5>افزودن خدمت جدید</h5>
+    <form method="POST" class="row g-2">
+        <div class="col-md-3"><input name="name" class="form-control" placeholder="نام خدمت" required></div>
+        <div class="col-md-2"><input name="price" type="number" class="form-control" placeholder="قیمت"></div>
+        <div class="col-md-3"><input name="description" class="form-control" placeholder="توضیحات"></div>
+        <div class="col-md-2"><input name="recovery_days" type="number" class="form-control" placeholder="روزهای بهبودی" required></div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">افزودن</button></div>
+    </form>
+</div>
+
+<table class="table table-bordered table-hover bg-white">
+    <thead><tr><th>#</th><th>نام</th><th>قیمت</th><th>توضیحات</th><th>روزهای بهبودی</th><th>فعال</th><th>عملیات</th><th></th></tr></thead>
+    <tbody>
+        {% for service in services %}
+        <tr>
+            <form method="POST" action="{{ url_for('admin_panel.update_service', service_id=service.id) }}">
+            <td>{{ service.id }}</td>
+            <td><input name="name" value="{{ service.name }}" class="form-control form-control-sm"></td>
+            <td><input name="price" value="{{ service.price or '' }}" class="form-control form-control-sm" style="width:100px"></td>
+            <td><input name="description" value="{{ service.description or '' }}" class="form-control form-control-sm"></td>
+            <td><input name="recovery_days" value="{{ service.recovery_days or '' }}" class="form-control form-control-sm" style="width:80px"></td>
+            <td><input type="checkbox" name="is_active" {% if service.is_active %}checked{% endif %}></td>
+            <td><button class="btn btn-sm btn-dark">ذخیره</button></td>
+            </form>
+            <td>
+                <form method="POST" action="{{ url_for('admin_panel.delete_service', service_id=service.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                    <button class="btn btn-sm btn-outline-danger">غیرفعال</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center">خدمتی ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

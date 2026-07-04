@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">یادآوری‌های ثبت شده</h3>
+<table class="table table-bordered table-hover bg-white">
+    <thead><tr><th>#</th><th>کاربر</th><th>خدمت</th><th>تاریخ انجام خدمت</th><th>تاریخ یادآوری</th><th>وضعیت ارسال</th></tr></thead>
+    <tbody>
+        {% for reminder in reminders %}
+        <tr>
+            <td>{{ reminder.id }}</td>
+            <td>{{ reminder.user.first_name }} {{ reminder.user.last_name or "" }}</td>
+            <td>{{ reminder.service.name if reminder.service else "-" }}</td>
+            <td>{{ reminder.procedure_date | jalali }}</td>
+            <td>{{ reminder.reminder_date | jalali }}</td>
+            <td>
+                {% if reminder.sent %}
+                    <span class="badge bg-success">ارسال شده</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">در انتظار ارسال</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center">یادآوری ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

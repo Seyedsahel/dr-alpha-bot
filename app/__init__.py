@@ -2,7 +2,7 @@ from flask import Flask
 from .extensions import db, migrate
 from app.models import *
 import os
-
+from app.config import Config
 def create_app():
     app = Flask(__name__)
 
@@ -12,6 +12,7 @@ def create_app():
         app.root_path,
         "uploads")
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+    app.config.from_object(Config)
 
     os.makedirs(
         os.path.join(
@@ -120,6 +121,26 @@ def create_app():
         users_bp,
         url_prefix="/api"
     )
+
+    from app.routes.admin import admin_users_bp
+    app.register_blueprint(
+        admin_users_bp,
+        url_prefix="/api/admin"
+    )
+
+        
+    # پنل مدیریت (Jinja2)
+    from app.routes.admin_panel import admin_panel_bp
+    app.register_blueprint(
+        admin_panel_bp,
+        url_prefix="/admin/panel"
+    )
+
+    # فیلتر jalali برای Jinja
+    from app.utils.jalali import gregorian_to_jalali_str
+    app.jinja_env.filters["jalali"] = gregorian_to_jalali_str
+
+    
     
     
     return app

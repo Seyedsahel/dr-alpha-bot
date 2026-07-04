@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">زمان‌های خالی</h3>
+
+<div class="card p-3 mb-4">
+    <h5>افزودن زمان جدید</h5>
+    <form method="POST" class="row g-2">
+        <div class="col-md-4">
+            <input type="text" name="jalali_date" class="form-control" placeholder="تاریخ شمسی مثل ۱۴۰۳/۰۵/۱۲" required>
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="time" class="form-control" placeholder="ساعت مثل 14:30" required>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100">افزودن</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-bordered table-hover bg-white">
+    <thead><tr><th>#</th><th>تاریخ و ساعت (شمسی)</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+    <tbody>
+        {% for slot in slots %}
+        <tr>
+            <td>{{ slot.id }}</td>
+            <td>{{ slot.start_time | jalali }}</td>
+            <td>
+                {% if slot.is_booked %}
+                    <span class="badge bg-danger">رزرو شده</span>
+                {% else %}
+                    <span class="badge bg-success">خالی</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if not slot.is_booked %}
+                <form method="POST" action="{{ url_for('admin_panel.delete_slot', slot_id=slot.id) }}" onsubmit="return confirm('حذف شود؟');">
+                    <button class="btn btn-sm btn-outline-danger">حذف</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center">زمانی ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

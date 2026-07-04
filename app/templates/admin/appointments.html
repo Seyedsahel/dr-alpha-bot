@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">نوبت‌ها</h3>
+<table class="table table-bordered table-hover bg-white">
+    <thead><tr><th>#</th><th>نام</th><th>تلفن</th><th>خدمت</th><th>زمان</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+    <tbody>
+        {% for appointment in appointments %}
+        <tr>
+            <td>{{ appointment.id }}</td>
+            <td>{{ appointment.user.first_name }} {{ appointment.user.last_name or "" }}</td>
+            <td>{{ appointment.user.phone or "-" }}</td>
+            <td>{{ appointment.service.name }}</td>
+            <td>{{ appointment.slot.start_time | jalali }}</td>
+            <td>
+                {% if appointment.status == "confirmed" %}
+                    <span class="badge bg-success">تایید شده</span>
+                {% elif appointment.status == "rejected" %}
+                    <span class="badge bg-danger">رد شده</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">در انتظار</span>
+                {% endif %}
+            </td>
+            <td class="d-flex gap-1">
+                <form method="POST" action="{{ url_for('admin_panel.update_appointment', appointment_id=appointment.id) }}">
+                    <input type="hidden" name="status" value="confirmed">
+                    <button class="btn btn-sm btn-success">تایید</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_panel.update_appointment', appointment_id=appointment.id) }}">
+                    <input type="hidden" name="status" value="rejected">
+                    <button class="btn btn-sm btn-danger">رد</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center">نوبتی ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

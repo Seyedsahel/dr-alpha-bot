@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">داشبورد</h3>
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center">
+            <div class="fs-2">{{ stats.users }}</div><div>کاربران</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center">
+            <div class="fs-2">{{ stats.pending_appointments }}</div><div>نوبت‌های در انتظار</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center">
+            <div class="fs-2">{{ stats.pending_consultations }}</div><div>مشاوره‌های در انتظار</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center">
+            <div class="fs-2">{{ stats.active_reminders }}</div><div>یادآوری‌های فعال</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center">
+            <div class="fs-2">{{ stats.empty_slots }}</div><div>زمان‌های خالی</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

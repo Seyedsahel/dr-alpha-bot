@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">درخواست‌های مشاوره</h3>
+<table class="table table-bordered table-hover bg-white">
+    <thead><tr><th>#</th><th>نام</th><th>تلفن</th><th>یادداشت</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+    <tbody>
+        {% for consultation in consultations %}
+        <tr>
+            <td>{{ consultation.id }}</td>
+            <td>{{ consultation.user.first_name }} {{ consultation.user.last_name or "" }}</td>
+            <td>{{ consultation.user.phone or "-" }}</td>
+            <td>{{ consultation.note or "-" }}</td>
+            <td>
+                {% if consultation.status == "closed" %}
+                    <span class="badge bg-secondary">بسته شده</span>
+                {% elif consultation.status == "called" %}
+                    <span class="badge bg-success">تماس گرفته شده</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">در انتظار</span>
+                {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="{{ url_for('admin_panel.update_consultation', consultation_id=consultation.id) }}" class="d-flex gap-1">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="pending" {% if consultation.status == "pending" %}selected{% endif %}>در انتظار</option>
+                        <option value="called" {% if consultation.status == "called" %}selected{% endif %}>تماس گرفته شده</option>
+                        <option value="closed" {% if consultation.status == "closed" %}selected{% endif %}>بسته شده</option>
+                    </select>
+                    <button class="btn btn-sm btn-dark">ثبت</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center">درخواستی ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

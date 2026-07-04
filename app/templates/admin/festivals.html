@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">جشنواره‌ها</h3>
+
+<div class="card p-3 mb-4">
+    <h5>افزودن جشنواره جدید</h5>
+    <form method="POST" enctype="multipart/form-data" class="row g-2">
+        <div class="col-md-3"><input name="title" class="form-control" placeholder="عنوان" required></div>
+        <div class="col-md-4"><input name="description" class="form-control" placeholder="توضیحات" required></div>
+        <div class="col-md-3"><input type="file" name="image" class="form-control"></div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">افزودن</button></div>
+    </form>
+</div>
+
+<div class="row g-3">
+    {% for festival in festivals %}
+    <div class="col-md-4">
+        <div class="card p-2">
+            {% if festival.image_path %}
+                <img src="{{ url_for('uploads.uploaded_file', filename='festivals/' + festival.image_path) }}" class="img-fluid rounded mb-2">
+            {% endif %}
+            <form method="POST" action="{{ url_for('admin_panel.update_festival', festival_id=festival.id) }}" enctype="multipart/form-data">
+                <input name="title" value="{{ festival.title }}" class="form-control form-control-sm mb-1">
+                <textarea name="description" class="form-control form-control-sm mb-1">{{ festival.description }}</textarea>
+                <input type="file" name="image" class="form-control form-control-sm mb-1">
+                <div class="form-check mb-1">
+                    <input type="checkbox" name="is_active" class="form-check-input" {% if festival.is_active %}checked{% endif %}>
+                    <label class="form-check-label">فعال</label>
+                </div>
+                <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin_panel.delete_festival', festival_id=festival.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                <button class="btn btn-sm btn-outline-danger w-100">غیرفعال</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center">جشنواره‌ای ثبت نشده است</p>
+    {% endfor %}
+</div>
+{% endblock %}

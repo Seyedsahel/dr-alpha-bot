@@ -6,3 +6,4 @@ from .faqs import admin_faqs_bp
 from .aftercares import admin_aftercares_bp
 from .festivals import admin_festivals_bp
 from .reminders import admin_reminders_bp
+from .users import admin_users_bp

@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">کاربران</h3>
+<table class="table table-bordered table-hover bg-white">
+    <thead>
+        <tr><th>#</th><th>نام</th><th>شماره تلفن</th><th>Chat ID</th><th>تاریخ عضویت</th></tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.first_name }} {{ user.last_name or "" }}</td>
+            <td>{{ user.phone or "-" }}</td>
+            <td>{{ user.chat_id }}</td>
+            <td>{{ user.created_at | jalali }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center">کاربری ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

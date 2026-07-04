@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">مراقبت‌های بعد از خدمات</h3>
+
+<div class="card p-3 mb-4">
+    <h5>افزودن مراقبت جدید</h5>
+    <form method="POST" class="row g-2">
+        <div class="col-md-4">
+            <select name="service_id" class="form-select" required>
+                <option value="">انتخاب خدمت</option>
+                {% for service in services %}
+                <option value="{{ service.id }}">{{ service.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6"><input name="content" class="form-control" placeholder="متن مراقبت" required></div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">افزودن</button></div>
+    </form>
+</div>
+
+<table class="table table-bordered table-hover bg-white">
+    <thead><tr><th>#</th><th>خدمت</th><th>متن</th><th>فعال</th><th>عملیات</th><th></th></tr></thead>
+    <tbody>
+        {% for aftercare in aftercares %}
+        <tr>
+            <form method="POST" action="{{ url_for('admin_panel.update_aftercare', aftercare_id=aftercare.id) }}">
+            <td>{{ aftercare.id }}</td>
+            <td>{{ aftercare.service.name if aftercare.service else "-" }}</td>
+            <td><input name="content" value="{{ aftercare.content }}" class="form-control form-control-sm"></td>
+            <td><input type="checkbox" name="is_active" {% if aftercare.is_active %}checked{% endif %}></td>
+            <td><button class="btn btn-sm btn-dark">ذخیره</button></td>
+            </form>
+            <td>
+                <form method="POST" action="{{ url_for('admin_panel.delete_aftercare', aftercare_id=aftercare.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                    <button class="btn btn-sm btn-outline-danger">غیرفعال</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center">موردی ثبت نشده است</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
