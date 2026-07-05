@@ -7,3 +7,4 @@ from .aftercares import admin_aftercares_bp
 from .festivals import admin_festivals_bp
 from .reminders import admin_reminders_bp
 from .users import admin_users_bp
+from .auth import admin_auth_bp

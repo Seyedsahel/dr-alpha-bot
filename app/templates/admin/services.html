@@ -5,6 +5,7 @@
 <div class="card p-3 mb-4">
     <h5>افزودن خدمت جدید</h5>
     <form method="POST" class="row g-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="col-md-3"><input name="name" class="form-control" placeholder="نام خدمت" required></div>
         <div class="col-md-2"><input name="price" type="number" class="form-control" placeholder="قیمت"></div>
         <div class="col-md-3"><input name="description" class="form-control" placeholder="توضیحات"></div>
@@ -19,6 +20,7 @@
         {% for service in services %}
         <tr>
             <form method="POST" action="{{ url_for('admin_panel.update_service', service_id=service.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <td>{{ service.id }}</td>
             <td><input name="name" value="{{ service.name }}" class="form-control form-control-sm"></td>
             <td><input name="price" value="{{ service.price or '' }}" class="form-control form-control-sm" style="width:100px"></td>
@@ -29,6 +31,7 @@
             </form>
             <td>
                 <form method="POST" action="{{ url_for('admin_panel.delete_service', service_id=service.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-outline-danger">غیرفعال</button>
                 </form>
             </td>

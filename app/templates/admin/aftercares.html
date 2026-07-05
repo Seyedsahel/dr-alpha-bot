@@ -24,6 +24,7 @@
         {% for aftercare in aftercares %}
         <tr>
             <form method="POST" action="{{ url_for('admin_panel.update_aftercare', aftercare_id=aftercare.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <td>{{ aftercare.id }}</td>
             <td>{{ aftercare.service.name if aftercare.service else "-" }}</td>
             <td><input name="content" value="{{ aftercare.content }}" class="form-control form-control-sm"></td>
@@ -32,6 +33,7 @@
             </form>
             <td>
                 <form method="POST" action="{{ url_for('admin_panel.delete_aftercare', aftercare_id=aftercare.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-outline-danger">غیرفعال</button>
                 </form>
             </td>

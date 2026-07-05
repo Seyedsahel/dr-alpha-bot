@@ -1,3 +1,8 @@
-venv
+.env
+instance/
+*.db
 __pycache__/
-app/config.py
+*.pyc
+venv/
+.venv/
+*.log

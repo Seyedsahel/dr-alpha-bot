@@ -22,10 +22,12 @@
             </td>
             <td class="d-flex gap-1">
                 <form method="POST" action="{{ url_for('admin_panel.update_appointment', appointment_id=appointment.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="status" value="confirmed">
                     <button class="btn btn-sm btn-success">تایید</button>
                 </form>
                 <form method="POST" action="{{ url_for('admin_panel.update_appointment', appointment_id=appointment.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="status" value="rejected">
                     <button class="btn btn-sm btn-danger">رد</button>
                 </form>

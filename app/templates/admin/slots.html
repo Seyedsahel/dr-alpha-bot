@@ -5,6 +5,7 @@
 <div class="card p-3 mb-4">
     <h5>افزودن زمان جدید</h5>
     <form method="POST" class="row g-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="col-md-4">
             <input type="text" name="jalali_date" class="form-control" placeholder="تاریخ شمسی مثل ۱۴۰۳/۰۵/۱۲" required>
         </div>
@@ -34,6 +35,7 @@
             <td>
                 {% if not slot.is_booked %}
                 <form method="POST" action="{{ url_for('admin_panel.delete_slot', slot_id=slot.id) }}" onsubmit="return confirm('حذف شود؟');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-outline-danger">حذف</button>
                 </form>
                 {% endif %}

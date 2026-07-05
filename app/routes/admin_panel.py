@@ -19,6 +19,7 @@ from app.utils.jalali import jalali_str_to_gregorian_datetime
 from app.utils.file_handler import allowed_file, save_image, delete_image
 from app.utils.auth import login_required
 
+from app import limiter
 
 admin_panel_bp = Blueprint(
     "admin_panel",
@@ -29,6 +30,9 @@ admin_panel_bp = Blueprint(
 # ---------- Auth ----------
 
 @admin_panel_bp.route("/login", methods=["GET", "POST"])
+
+@limiter.limit("5 per minute", methods=["POST"])
+
 def login():
 
     if request.method == "POST":

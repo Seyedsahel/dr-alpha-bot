@@ -5,6 +5,7 @@
 <div class="card p-3 mb-4">
     <h5>افزودن جشنواره جدید</h5>
     <form method="POST" enctype="multipart/form-data" class="row g-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="col-md-3"><input name="title" class="form-control" placeholder="عنوان" required></div>
         <div class="col-md-4"><input name="description" class="form-control" placeholder="توضیحات" required></div>
         <div class="col-md-3"><input type="file" name="image" class="form-control"></div>
@@ -20,6 +21,7 @@
                 <img src="{{ url_for('uploads.uploaded_file', filename='festivals/' + festival.image_path) }}" class="img-fluid rounded mb-2">
             {% endif %}
             <form method="POST" action="{{ url_for('admin_panel.update_festival', festival_id=festival.id) }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input name="title" value="{{ festival.title }}" class="form-control form-control-sm mb-1">
                 <textarea name="description" class="form-control form-control-sm mb-1">{{ festival.description }}</textarea>
                 <input type="file" name="image" class="form-control form-control-sm mb-1">
@@ -30,6 +32,7 @@
                 <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
             </form>
             <form method="POST" action="{{ url_for('admin_panel.delete_festival', festival_id=festival.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button class="btn btn-sm btn-outline-danger w-100">غیرفعال</button>
             </form>
         </div>
