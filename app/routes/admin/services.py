@@ -67,9 +67,7 @@ def create_service():
         description=data.get("description"),
         recovery_days=int(data.get("recovery_days"))
     )
-    print("RAW DATA:", request.data)
-    print("JSON:", request.get_json())
-
+   
     db.session.add(service)
     db.session.commit()
 
