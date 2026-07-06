@@ -28,13 +28,8 @@ from app.routes.admin import admin_users_bp
 from app.routes.admin_panel import admin_panel_bp
 from app.routes.admin import admin_faqs_bp
 
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from app.extensions import limiter
 
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["200 per hour"]
-)
 
 csrf = CSRFProtect()
 
@@ -48,7 +43,7 @@ def create_app():
         "uploads")
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
     app.config.from_object(Config)
-    limiter.init_app(app)
+
    
    
     csrf.init_app(app)
@@ -83,6 +78,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    limiter.init_app(app)
 
     app.register_blueprint(
         admin_auth_bp,

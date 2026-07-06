@@ -1,13 +1,16 @@
 from flask import Blueprint, request
+
+from sqlalchemy.exc import IntegrityError
+
 from app.extensions import db
 from app.models.appoinment import Appointment
 from app.models.available_slot import AvailableSlot
-
 
 appointments_bp = Blueprint(
     "appointments",
     __name__
 )
+
 
 @appointments_bp.route(
     "/appointments",
@@ -22,6 +25,11 @@ def create_appointment():
     service_id = data.get("service_id")
     description = data.get("description")
 
+    if not user_id or not slot_id or not service_id:
+        return {
+            "error": "اطلاعات ناقص است"
+        }, 400
+
     slot = AvailableSlot.query.get(slot_id)
 
     if not slot:
@@ -32,11 +40,6 @@ def create_appointment():
     if slot.is_booked:
         return {
             "error": "این نوبت پر شده است"
-        }, 400
-    
-    if not service_id:
-        return {
-            "error": "لطفا یک سرویس انتخاب کنید"
         }, 400
 
     appointment = Appointment(
@@ -49,12 +52,23 @@ def create_appointment():
     slot.is_booked = True
 
     db.session.add(appointment)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+
+    except IntegrityError:
+
+        db.session.rollback()
+
+        return {
+            "error": "این نوبت لحظاتی پیش توسط شخص دیگری رزرو شد"
+        }, 409
 
     return {
         "message": "نوبت ثبت شد",
         "appointment_id": appointment.id
     }, 201
+
 
 @appointments_bp.route(
     "/appointments/<int:user_id>",

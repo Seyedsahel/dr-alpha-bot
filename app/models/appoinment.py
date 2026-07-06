@@ -20,6 +20,7 @@ class Appointment(db.Model):
     slot_id = db.Column(
         db.Integer,
         db.ForeignKey("available_slots.id"),
+        unique=True,
         nullable=False
     )
 

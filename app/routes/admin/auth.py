@@ -2,7 +2,7 @@ from flask import Blueprint, request, current_app
 
 from app.utils.jwt_auth import generate_token
 
-from app import limiter
+from app.extensions import limiter
 
 admin_auth_bp = Blueprint(
     "admin_auth",
