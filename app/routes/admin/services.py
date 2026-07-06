@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 
-from app.models import service
 from app.models.service import Service
 from app.extensions import db
+from app.utils.validators import safe_int
 
 admin_services_bp = Blueprint(
     "admin_services",
@@ -26,6 +26,7 @@ def get_services():
             "name": service.name,
             "price": service.price,
             "description": service.description,
+            "recovery_days": service.recovery_days,
             "is_active": service.is_active
         })
 
@@ -55,19 +56,22 @@ def create_service():
             "error": "service already exists"
         }, 409
 
-    recovery_days = data.get("recovery_days")
+    recovery_days = safe_int(data.get("recovery_days"))
+
     if recovery_days is None:
         return {
-            "error": "recovery_days is required"
+            "error": "recovery_days is required and must be an integer"
         }, 400
+
+    price = safe_int(data.get("price")) if data.get("price") is not None else None
 
     service = Service(
         name=name,
-        price=data.get("price"),
+        price=price,
         description=data.get("description"),
-        recovery_days=int(data.get("recovery_days"))
+        recovery_days=recovery_days
     )
-   
+
     db.session.add(service)
     db.session.commit()
 
@@ -106,7 +110,7 @@ def update_service(service_id):
         service.name = data["name"]
 
     if "price" in data:
-        service.price = data["price"]
+        service.price = safe_int(data["price"])
 
     if "description" in data:
         service.description = data["description"]
@@ -115,7 +119,12 @@ def update_service(service_id):
         service.is_active = data["is_active"]
     
     if "recovery_days" in data:
-        service.recovery_days = int(data["recovery_days"])
+        recovery_days = safe_int(data["recovery_days"])
+        if recovery_days is None:
+            return {
+                "error": "recovery_days must be an integer"
+            }, 400
+        service.recovery_days = recovery_days
 
     db.session.commit()
 

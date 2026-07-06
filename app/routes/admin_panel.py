@@ -21,6 +21,8 @@ from app.utils.auth import login_required
 
 from app.extensions import limiter
 
+from app.utils.validators import safe_int
+
 admin_panel_bp = Blueprint(
     "admin_panel",
     __name__
@@ -241,13 +243,29 @@ def services():
     if request.method == "POST":
 
         name = request.form.get("name")
-        price = request.form.get("price")
         description = request.form.get("description")
-        recovery_days = request.form.get("recovery_days")
 
-        if not name or not recovery_days:
-            flash("نام خدمت و روزهای بهبودی الزامی است")
+        if not name:
+            flash("نام خدمت الزامی است")
             return redirect(url_for("admin_panel.services"))
+
+        recovery_days_raw = request.form.get("recovery_days")
+        recovery_days = safe_int(recovery_days_raw)
+
+        if not recovery_days_raw or recovery_days is None:
+            flash("روزهای بهبودی الزامی است و باید یک عدد صحیح باشد")
+            return redirect(url_for("admin_panel.services"))
+
+        price_raw = request.form.get("price")
+        price = None
+
+        if price_raw:
+
+            price = safe_int(price_raw)
+
+            if price is None:
+                flash("قیمت باید یک عدد صحیح باشد")
+                return redirect(url_for("admin_panel.services"))
 
         if Service.query.filter_by(name=name).first():
             flash("این خدمت قبلاً ثبت شده است")
@@ -255,9 +273,9 @@ def services():
 
         service = Service(
             name=name,
-            price=int(price) if price else None,
+            price=price,
             description=description,
-            recovery_days=int(recovery_days)
+            recovery_days=recovery_days
         )
 
         db.session.add(service)
@@ -284,14 +302,22 @@ def update_service(service_id):
 
     service.name = request.form.get("name", service.name)
 
-    price = request.form.get("price")
-    service.price = int(price) if price else None
+    price_raw = request.form.get("price")
+    service.price = safe_int(price_raw) if price_raw else None
 
     service.description = request.form.get("description")
 
-    recovery_days = request.form.get("recovery_days")
-    if recovery_days:
-        service.recovery_days = int(recovery_days)
+    recovery_days_raw = request.form.get("recovery_days")
+
+    if recovery_days_raw:
+
+        recovery_days = safe_int(recovery_days_raw)
+
+        if recovery_days is None:
+            flash("روزهای بهبودی باید یک عدد صحیح باشد")
+            return redirect(url_for("admin_panel.services"))
+
+        service.recovery_days = recovery_days
 
     service.is_active = request.form.get("is_active") == "on"
 
@@ -300,7 +326,6 @@ def update_service(service_id):
     flash("خدمت بروزرسانی شد")
 
     return redirect(url_for("admin_panel.services"))
-
 
 @admin_panel_bp.route("/services/<int:service_id>/delete", methods=["POST"])
 @login_required
@@ -396,7 +421,10 @@ def aftercares():
 
     if request.method == "POST":
 
-        service_id = request.form.get("service_id")
+        service_id = safe_int(request.form.get("service_id"))
+        if service_id is None:
+            flash("انتخاب خدمت الزامی است")
+            return redirect(url_for("admin_panel.aftercares"))
         content = request.form.get("content")
 
         if not service_id or not content:
@@ -407,7 +435,7 @@ def aftercares():
             flash("برای این خدمت قبلاً مراقبت ثبت شده است")
             return redirect(url_for("admin_panel.aftercares"))
 
-        aftercare = AfterCare(service_id=int(service_id), content=content)
+        aftercare = AfterCare(service_id=service_id, content=content)
 
         db.session.add(aftercare)
         db.session.commit()
