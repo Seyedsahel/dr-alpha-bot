@@ -1,8 +1,9 @@
 .env
-instance/*.db
-__pycache__/
-*.pyc
 venv/
-.venv/
-*.log
-migrations/
+__pycache__/
+**/__pycache__/
+*.pyc
+instance/
+dr-alpha-bot-doc/
+migrations/versions/__pycache__/
+migrations/__pycache__/
