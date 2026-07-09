@@ -562,14 +562,16 @@ def update_festival(festival_id):
             flash("فرمت تصویر نامعتبر است")
             return redirect(url_for("admin_panel.festivals"))
 
+        festivals_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
+
         delete_image(
-            festival.image_path,
-            os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
+            festivals_folder,
+            festival.image_path
         )
 
         festival.image_path = save_image(
             image,
-            os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
+            festivals_folder
         )
 
     festival.is_active = request.form.get("is_active") == "on"
@@ -593,9 +595,11 @@ def delete_festival(festival_id):
 
     if festival.image_path:
 
+        festivals_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
+
         delete_image(
-            festival.image_path,
-            os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
+            festivals_folder,
+            festival.image_path
         )
 
         festival.image_path = None
