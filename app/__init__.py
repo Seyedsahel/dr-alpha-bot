@@ -38,7 +38,6 @@ def create_app():
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///clinic.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["UPLOAD_FOLDER"] = "/srv/dr-alpha/uploads"
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
     app.config.from_object(Config)
 

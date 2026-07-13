@@ -1,4 +1,5 @@
 import os
+from app.routes import admin
 
 from flask import (
     Blueprint, render_template, request,
@@ -583,6 +584,7 @@ def update_festival(festival_id):
     return redirect(url_for("admin_panel.festivals"))
 
 
+
 @admin_panel_bp.route("/festivals/<int:festival_id>/delete", methods=["POST"])
 @login_required
 def delete_festival(festival_id):
@@ -590,23 +592,25 @@ def delete_festival(festival_id):
     festival = Festival.query.get(festival_id)
 
     if not festival:
-        flash("جشنواره یافت نشد")
+        flash("فرمت تصویر نامعتبر است")
         return redirect(url_for("admin_panel.festivals"))
 
+
+
+    upload_folder = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            "festivals"
+            )
+
     if festival.image_path:
-
-        festivals_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
-
         delete_image(
-            festivals_folder,
-            festival.image_path
-        )
+                upload_folder,
+                festival.image_path,
+                )
 
-        festival.image_path = None
-
-    festival.is_active = False
-
+    db.session.delete(festival)
     db.session.commit()
+    print("festival deleted")
 
     flash("جشنواره غیرفعال شد")
 

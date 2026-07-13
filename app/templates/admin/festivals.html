@@ -25,15 +25,23 @@
                 <input name="title" value="{{ festival.title }}" class="form-control form-control-sm mb-1">
                 <textarea name="description" class="form-control form-control-sm mb-1">{{ festival.description }}</textarea>
                 <input type="file" name="image" class="form-control form-control-sm mb-1">
-                <div class="form-check mb-1">
-                    <input type="checkbox" name="is_active" class="form-check-input" {% if festival.is_active %}checked{% endif %}>
-                    <label class="form-check-label">فعال</label>
-                </div>
-                <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
+		<div class="form-check mb-2">
+    <input
+        class="form-check-input"
+        type="checkbox"
+        id="active{{ festival.id }}"
+        name="is_active"
+        {% if festival.is_active %}checked{% endif %}
+    >
+    <label class="form-check-label" for="active{{ festival.id }}">
+        فعال
+    </label>
+</div>
+               <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
             </form>
             <form method="POST" action="{{ url_for('admin_panel.delete_festival', festival_id=festival.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button class="btn btn-sm btn-outline-danger w-100">غیرفعال</button>
+                <button class="btn btn-sm btn-outline-danger w-100">حذف</button>
             </form>
         </div>
     </div>

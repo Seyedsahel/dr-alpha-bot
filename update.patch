@@ -1,0 +1,198 @@
+diff --git a/.gitignore b/.gitignore
+index 30d7cba..0444048 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,9 +1,10 @@
+ .env
+ venv/
++.venv/
+ __pycache__/
+ **/__pycache__/
+ *.pyc
+ instance/
+ dr-alpha-bot-doc/
+ migrations/versions/__pycache__/
+-migrations/__pycache__/
+\ No newline at end of file
++migrations/__pycache__/
+diff --git a/app/__init__.py b/app/__init__.py
+index 6234840..abd5d6d 100644
+--- a/app/__init__.py
++++ b/app/__init__.py
+@@ -38,7 +38,6 @@ def create_app():
+ 
+     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///clinic.db"
+     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+-    app.config["UPLOAD_FOLDER"] = "/srv/dr-alpha/uploads"
+     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+     app.config.from_object(Config)
+ 
+@@ -220,4 +219,4 @@ def create_app():
+     
+     
+     
+-    return app
+\ No newline at end of file
++    return app
+diff --git a/app/config.py b/app/config.py
+index 6cc510a..bda53bd 100644
+--- a/app/config.py
++++ b/app/config.py
+@@ -9,8 +9,10 @@ class Config:
+     SECRET_KEY = os.environ.get("SECRET_KEY")
+     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
++    UPLOAD_FOLDER= os.environ.get("UPLOAD_FOLDER")
++    PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL")
+ 
+-    if not SECRET_KEY or not ADMIN_USERNAME or not ADMIN_PASSWORD:
++    if not SECRET_KEY or not ADMIN_USERNAME or not ADMIN_PASSWORD or not UPLOAD_FOLDER or not PUBLIC_BASE_URL:
+         raise RuntimeError(
+             "SECRET_KEY, ADMIN_USERNAME, ADMIN_PASSWORD باید در .env تنظیم شوند"
+-        )
+\ No newline at end of file
++        )
+diff --git a/app/routes/admin_panel.py b/app/routes/admin_panel.py
+index 1f36260..101db13 100644
+--- a/app/routes/admin_panel.py
++++ b/app/routes/admin_panel.py
+@@ -1,4 +1,5 @@
+ import os
++from app.routes import admin
+ 
+ from flask import (
+     Blueprint, render_template, request,
+@@ -583,6 +584,7 @@ def update_festival(festival_id):
+     return redirect(url_for("admin_panel.festivals"))
+ 
+ 
++
+ @admin_panel_bp.route("/festivals/<int:festival_id>/delete", methods=["POST"])
+ @login_required
+ def delete_festival(festival_id):
+@@ -590,24 +592,26 @@ def delete_festival(festival_id):
+     festival = Festival.query.get(festival_id)
+ 
+     if not festival:
+-        flash("جشنواره یافت نشد")
++        flash("فرمت تصویر نامعتبر است")
+         return redirect(url_for("admin_panel.festivals"))
+ 
+-    if festival.image_path:
+ 
+-        festivals_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "festivals")
+ 
+-        delete_image(
+-            festivals_folder,
+-            festival.image_path
+-        )
+-
+-        festival.image_path = None
++    upload_folder = os.path.join(
++            current_app.config["UPLOAD_FOLDER"],
++            "festivals"
++            )
+ 
+-    festival.is_active = False
++    if festival.image_path:
++        delete_image(
++                upload_folder,
++                festival.image_path,
++                )
+ 
++    db.session.delete(festival)
+     db.session.commit()
++    print("festival deleted")
+ 
+     flash("جشنواره غیرفعال شد")
+ 
+-    return redirect(url_for("admin_panel.festivals"))
+\ No newline at end of file
++    return redirect(url_for("admin_panel.festivals"))
+diff --git a/app/routes/bot/festivals.py b/app/routes/bot/festivals.py
+index 2dd4e4c..a34898a 100644
+--- a/app/routes/bot/festivals.py
++++ b/app/routes/bot/festivals.py
+@@ -1,5 +1,6 @@
+ from flask import Blueprint, url_for
+ from app.models.festival import Festival
++from flask import request,current_app
+ 
+ festivals_bp = Blueprint("festivals", __name__)
+ 
+@@ -9,24 +10,21 @@ festivals_bp = Blueprint("festivals", __name__)
+ def get_festivals():
+ 
+     festivals = Festival.query.filter_by(is_active=True).all()
+-    festivals = Festival.query.all()
+-
+ 
+     result = []
+ 
+     for festival in festivals:
+         image_url = None
+         if festival.image_path:
+-            image_url = url_for(
+-                "uploads.uploaded_file",
+-                filename=f"festivals/{festival.image_path}",
+-                _external=True
++            image_url = (
++                f"{current_app.config['PUBLIC_BASE_URL']}"
++                f"/uploads/festivals/{festival.image_path}"
+             )
+         result.append({
+-            "id": festival.id,
+-            "title": festival.title,
+-            "description": festival.description,
+-            "image_url": image_url
+-        })
++                "id": festival.id,
++                "title": festival.title,
++                "description": festival.description,
++                "image_url": image_url
++            })
+ 
+-    return result, 200
+\ No newline at end of file
++    return result, 200
+diff --git a/app/templates/admin/festivals.html b/app/templates/admin/festivals.html
+index c2673a2..d63297c 100644
+--- a/app/templates/admin/festivals.html
++++ b/app/templates/admin/festivals.html
+@@ -25,15 +25,23 @@
+                 <input name="title" value="{{ festival.title }}" class="form-control form-control-sm mb-1">
+                 <textarea name="description" class="form-control form-control-sm mb-1">{{ festival.description }}</textarea>
+                 <input type="file" name="image" class="form-control form-control-sm mb-1">
+-                <div class="form-check mb-1">
+-                    <input type="checkbox" name="is_active" class="form-check-input" {% if festival.is_active %}checked{% endif %}>
+-                    <label class="form-check-label">فعال</label>
+-                </div>
+-                <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
++		<div class="form-check mb-2">
++    <input
++        class="form-check-input"
++        type="checkbox"
++        id="active{{ festival.id }}"
++        name="is_active"
++        {% if festival.is_active %}checked{% endif %}
++    >
++    <label class="form-check-label" for="active{{ festival.id }}">
++        فعال
++    </label>
++</div>
++               <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
+             </form>
+             <form method="POST" action="{{ url_for('admin_panel.delete_festival', festival_id=festival.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+-                <button class="btn btn-sm btn-outline-danger w-100">غیرفعال</button>
++                <button class="btn btn-sm btn-outline-danger w-100">حذف</button>
+             </form>
+         </div>
+     </div>
+@@ -41,4 +49,4 @@
+     <p class="text-center">جشنواره‌ای ثبت نشده است</p>
+     {% endfor %}
+ </div>
+-{% endblock %}
+\ No newline at end of file
++{% endblock %}
