@@ -75,6 +75,7 @@ def update_appointment_status(appointment_id):
     
     if status == "rejected":
         appointment.slot.is_booked = False
+        db.session.delete(appointment)
     else:
         appointment.slot.is_booked = True
 
