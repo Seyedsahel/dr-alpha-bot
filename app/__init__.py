@@ -216,7 +216,8 @@ def create_app():
     from app.utils.jalali import gregorian_to_jalali_str
     app.jinja_env.filters["jalali"] = gregorian_to_jalali_str
 
-    
+    from app.utils.pricing import format_service_price
+    app.jinja_env.filters["service_price"] = format_service_price
     
     
     return app

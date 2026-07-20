@@ -146,6 +146,56 @@ def delete_slot(slot_id):
 
     return redirect(url_for("admin_panel.slots"))
 
+from app.utils.slot_generator import generate_weekly_slots
+
+
+@admin_panel_bp.route("/slots/generate", methods=["POST"])
+@login_required
+def generate_slots():
+
+    start_time_raw = request.form.get("start_time")
+    end_time_raw = request.form.get("end_time")
+
+    if not start_time_raw or not end_time_raw:
+        flash("لطفاً ساعت شروع و پایان را وارد کنید")
+        return redirect(url_for("admin_panel.slots"))
+
+    try:
+        generated_times = generate_weekly_slots(start_time_raw, end_time_raw)
+
+    except ValueError as error:
+        flash(str(error))
+        return redirect(url_for("admin_panel.slots"))
+
+    except Exception:
+        flash("فرمت ساعت نامعتبر است. مثال درست: 17:00")
+        return redirect(url_for("admin_panel.slots"))
+
+    existing_times = {
+        slot.start_time
+        for slot in AvailableSlot.query.filter(
+            AvailableSlot.start_time.in_(generated_times)
+        ).all()
+    }
+
+    created_count = 0
+
+    for slot_time in generated_times:
+
+        if slot_time in existing_times:
+            continue
+
+        db.session.add(AvailableSlot(start_time=slot_time))
+        created_count += 1
+
+    db.session.commit()
+
+    skipped_count = len(generated_times) - created_count
+
+    flash(f"{created_count} زمان خالی جدید ساخته شد ({skipped_count} مورد تکراری بود و رد شد)")
+
+    return redirect(url_for("admin_panel.slots"))
+
 
 # ---------- Appointments ----------
 
@@ -236,7 +286,6 @@ def reminders():
 
 
 # ---------- Services ----------
-
 @admin_panel_bp.route("/services", methods=["GET", "POST"])
 @login_required
 def services():
@@ -257,16 +306,35 @@ def services():
             flash("روزهای بهبودی الزامی است و باید یک عدد صحیح باشد")
             return redirect(url_for("admin_panel.services"))
 
-        price_raw = request.form.get("price")
-        price = None
+        minimum_price_raw = request.form.get("minimum_price")
+        maximum_price_raw = request.form.get("maximum_price")
 
-        if price_raw:
+        minimum_price = None
+        maximum_price = None
 
-            price = safe_int(price_raw)
+        if minimum_price_raw:
 
-            if price is None:
-                flash("قیمت باید یک عدد صحیح باشد")
+            minimum_price = safe_int(minimum_price_raw)
+
+            if minimum_price is None:
+                flash("حداقل قیمت باید یک عدد صحیح باشد")
                 return redirect(url_for("admin_panel.services"))
+
+        if maximum_price_raw:
+
+            maximum_price = safe_int(maximum_price_raw)
+
+            if maximum_price is None:
+                flash("حداکثر قیمت باید یک عدد صحیح باشد")
+                return redirect(url_for("admin_panel.services"))
+
+        if maximum_price is not None and minimum_price is None:
+            flash("برای ثبت حداکثر قیمت، ابتدا حداقل قیمت را وارد کنید")
+            return redirect(url_for("admin_panel.services"))
+
+        if maximum_price is not None and minimum_price is not None and maximum_price < minimum_price:
+            flash("حداکثر قیمت نمی‌تواند کمتر از حداقل قیمت باشد")
+            return redirect(url_for("admin_panel.services"))
 
         if Service.query.filter_by(name=name).first():
             flash("این خدمت قبلاً ثبت شده است")
@@ -274,7 +342,9 @@ def services():
 
         service = Service(
             name=name,
-            price=price,
+            minimum_price=minimum_price,
+            maximum_price=maximum_price,
+            price=minimum_price,
             description=description,
             recovery_days=recovery_days
         )
@@ -302,11 +372,25 @@ def update_service(service_id):
         return redirect(url_for("admin_panel.services"))
 
     service.name = request.form.get("name", service.name)
-
-    price_raw = request.form.get("price")
-    service.price = safe_int(price_raw) if price_raw else None
-
     service.description = request.form.get("description")
+
+    minimum_price_raw = request.form.get("minimum_price")
+    maximum_price_raw = request.form.get("maximum_price")
+
+    minimum_price = safe_int(minimum_price_raw) if minimum_price_raw else None
+    maximum_price = safe_int(maximum_price_raw) if maximum_price_raw else None
+
+    if maximum_price is not None and minimum_price is None:
+        flash("برای ثبت حداکثر قیمت، ابتدا حداقل قیمت را وارد کنید")
+        return redirect(url_for("admin_panel.services"))
+
+    if maximum_price is not None and minimum_price is not None and maximum_price < minimum_price:
+        flash("حداکثر قیمت نمی‌تواند کمتر از حداقل قیمت باشد")
+        return redirect(url_for("admin_panel.services"))
+
+    service.minimum_price = minimum_price
+    service.maximum_price = maximum_price
+    service.price = minimum_price
 
     recovery_days_raw = request.form.get("recovery_days")
 

@@ -7,6 +7,7 @@ services_bp = Blueprint(
     __name__
 )
 
+
 @services_bp.route(
     "/services",
     methods=["GET"]
@@ -24,7 +25,9 @@ def get_services():
         result.append({
             "id": service.id,
             "name": service.name,
-            "price": service.price,
+            "minimum_price": service.minimum_price,
+            "maximum_price": service.maximum_price,
+            "price": service.minimum_price,
             "description": service.description
         })
 

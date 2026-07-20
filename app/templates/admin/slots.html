@@ -18,6 +18,23 @@
     </form>
 </div>
 
+<div class="card p-3 mb-4">
+    <h5>ساخت خودکار زمان‌های خالی (۷ روز کاری آینده، بدون جمعه‌ها، هر ۲۰ دقیقه)</h5>
+    <p>برای ساخت زمان های خالی 7 روز اینده در بازه های 20 دقیقه فقط ساعت شروع و پایان حضور را وارد کنید اگر در این میان  زمانی را نمیخواستید انرا حذف کنید</p>
+    <form method="POST" action="{{ url_for('admin_panel.generate_slots') }}" class="row g-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-3">
+            <input type="text" name="start_time" class="form-control" placeholder="ساعت شروع مثل 17:00" required>
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="end_time" class="form-control" placeholder="ساعت پایان مثل 20:00" required>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-success w-100">ساخت خودکار</button>
+        </div>
+    </form>
+</div>
+
 <table class="table table-bordered table-hover bg-white">
     <thead><tr><th>#</th><th>تاریخ و ساعت (شمسی)</th><th>وضعیت</th><th>عملیات</th></tr></thead>
     <tbody>

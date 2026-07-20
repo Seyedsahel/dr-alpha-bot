@@ -21,6 +21,15 @@ class Service(db.Model):
         db.BigInteger,
         nullable=True
     )
+    minimum_price = db.Column(
+        db.BigInteger,
+        nullable=True
+    )
+
+    maximum_price = db.Column(
+        db.BigInteger,
+        nullable=True
+    )
 
     description = db.Column(
         db.Text,

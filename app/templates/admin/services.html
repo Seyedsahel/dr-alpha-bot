@@ -4,18 +4,22 @@
 
 <div class="card p-3 mb-4">
     <h5>افزودن خدمت جدید</h5>
+    <h6>خدمت با قیمت ثابت: وارد کردن فقط حداقل قیمت</h6>
+    <h6>خدمت با قیمت بازه ای: وارد کردن حداقل قیمت و حداکثر قیمت</h6>
+    <h6>خدمت با قیمت نا مشخص: وارد نکردن قیمت</h6>
     <form method="POST" class="row g-2">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="col-md-3"><input name="name" class="form-control" placeholder="نام خدمت" required></div>
-        <div class="col-md-2"><input name="price" type="number" class="form-control" placeholder="قیمت"></div>
-        <div class="col-md-3"><input name="description" class="form-control" placeholder="توضیحات"></div>
-        <div class="col-md-2"><input name="recovery_days" type="number" class="form-control" placeholder="روزهای بهبودی" required></div>
-        <div class="col-md-2"><button class="btn btn-dark w-100">افزودن</button></div>
+        <div class="col-md-2"><input name="minimum_price" type="number" class="form-control" placeholder="حداقل قیمت"></div>
+        <div class="col-md-2"><input name="maximum_price" type="number" class="form-control" placeholder="حداکثر قیمت (اختیاری)"></div>
+        <div class="col-md-2"><input name="description" class="form-control" placeholder="توضیحات"></div>
+        <div class="col-md-2"><input name="recovery_days" type="number" class="form-control" placeholder="فاصله تا ویزیت بعدی" required></div>
+        <div class="col-md-1"><button class="btn btn-dark w-100">افزودن</button></div>
     </form>
 </div>
 
 <table class="table table-bordered table-hover bg-white">
-    <thead><tr><th>#</th><th>نام</th><th>قیمت</th><th>توضیحات</th><th>روزهای بهبودی</th><th>فعال</th><th>عملیات</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th>نام</th><th>حداقل قیمت</th><th>حداکثر قیمت</th><th>نمایش قیمت</th><th>توضیحات</th><th>فاصله تا ویزیت بعدی </th><th>فعال</th><th>عملیات</th><th></th></tr></thead>
     <tbody>
         {% for service in services %}
         <tr>
@@ -23,7 +27,9 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <td>{{ service.id }}</td>
             <td><input name="name" value="{{ service.name }}" class="form-control form-control-sm"></td>
-            <td><input name="price" value="{{ service.price or '' }}" class="form-control form-control-sm" style="width:100px"></td>
+            <td><input name="minimum_price" value="{{ service.minimum_price or '' }}" class="form-control form-control-sm" style="width:110px"></td>
+            <td><input name="maximum_price" value="{{ service.maximum_price or '' }}" class="form-control form-control-sm" style="width:110px"></td>
+            <td>{{ service | service_price }}</td>
             <td><input name="description" value="{{ service.description or '' }}" class="form-control form-control-sm"></td>
             <td><input name="recovery_days" value="{{ service.recovery_days or '' }}" class="form-control form-control-sm" style="width:80px"></td>
             <td><input type="checkbox" name="is_active" {% if service.is_active %}checked{% endif %}></td>
@@ -37,7 +43,7 @@
             </td>
         </tr>
         {% else %}
-        <tr><td colspan="8" class="text-center">خدمتی ثبت نشده است</td></tr>
+        <tr><td colspan="10" class="text-center">خدمتی ثبت نشده است</td></tr>
         {% endfor %}
     </tbody>
 </table>
