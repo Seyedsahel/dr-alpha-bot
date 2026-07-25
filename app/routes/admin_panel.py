@@ -91,6 +91,36 @@ def users():
     return render_template("admin/users.html", users=all_users)
 
 
+@admin_panel_bp.route("/users/<int:user_id>/delete", methods=["POST"])
+@login_required
+def delete_user(user_id):
+
+    user = User.query.get(user_id)
+
+    if not user:
+        flash("کاربر یافت نشد")
+        return redirect(url_for("admin_panel.users"))
+
+    # Free every slot this user's appointments hold, then delete appointments
+    for appointment in list(user.appointments):
+        appointment.slot.is_booked = False
+        db.session.delete(appointment)
+
+    # Delete consultations and reminders belonging to this user
+    for consultation in list(user.consultations):
+        db.session.delete(consultation)
+
+    for reminder in list(user.reminders):
+        db.session.delete(reminder)
+
+    db.session.delete(user)
+    db.session.commit()
+
+    flash("کاربر و تمام داده‌های مرتبط حذف شد")
+
+    return redirect(url_for("admin_panel.users"))
+
+
 # ---------- Slots ----------
 
 @admin_panel_bp.route("/slots", methods=["GET", "POST"])
@@ -413,6 +443,7 @@ def update_service(service_id):
 
     return redirect(url_for("admin_panel.services"))
 
+
 @admin_panel_bp.route("/services/<int:service_id>/delete", methods=["POST"])
 @login_required
 def delete_service(service_id):
@@ -423,10 +454,23 @@ def delete_service(service_id):
         flash("خدمت یافت نشد")
         return redirect(url_for("admin_panel.services"))
 
-    service.is_active = False
+    # Delete all appointments tied to this service and free their slots
+    for appointment in list(service.appointments):
+        appointment.slot.is_booked = False
+        db.session.delete(appointment)
+
+    # Delete all reminders tied to this service
+    for reminder in list(service.reminders):
+        db.session.delete(reminder)
+
+    # Delete the one-to-one aftercare if it exists
+    if service.aftercare:
+        db.session.delete(service.aftercare)
+
+    db.session.delete(service)
     db.session.commit()
 
-    flash("خدمت غیرفعال شد")
+    flash("خدمت و تمام داده‌های مرتبط حذف شد")
 
     return redirect(url_for("admin_panel.services"))
 
@@ -491,10 +535,10 @@ def delete_faq(faq_id):
         flash("سوال یافت نشد")
         return redirect(url_for("admin_panel.faqs"))
 
-    faq.is_active = False
+    db.session.delete(faq)
     db.session.commit()
 
-    flash("سوال غیرفعال شد")
+    flash("سوال حذف شد")
 
     return redirect(url_for("admin_panel.faqs"))
 
@@ -570,10 +614,10 @@ def delete_aftercare(aftercare_id):
         flash("مورد یافت نشد")
         return redirect(url_for("admin_panel.aftercares"))
 
-    aftercare.is_active = False
+    db.session.delete(aftercare)
     db.session.commit()
 
-    flash("غیرفعال شد")
+    flash("مراقبت حذف شد")
 
     return redirect(url_for("admin_panel.aftercares"))
 
@@ -669,7 +713,6 @@ def update_festival(festival_id):
     return redirect(url_for("admin_panel.festivals"))
 
 
-
 @admin_panel_bp.route("/festivals/<int:festival_id>/delete", methods=["POST"])
 @login_required
 def delete_festival(festival_id):
@@ -677,26 +720,23 @@ def delete_festival(festival_id):
     festival = Festival.query.get(festival_id)
 
     if not festival:
-        flash("فرمت تصویر نامعتبر است")
+        flash("جشنواره یافت نشد")
         return redirect(url_for("admin_panel.festivals"))
 
-
-
     upload_folder = os.path.join(
-            current_app.config["UPLOAD_FOLDER"],
-            "festivals"
-            )
+        current_app.config["UPLOAD_FOLDER"],
+        "festivals"
+    )
 
     if festival.image_path:
         delete_image(
-                upload_folder,
-                festival.image_path,
-                )
+            upload_folder,
+            festival.image_path,
+        )
 
     db.session.delete(festival)
     db.session.commit()
-    print("festival deleted")
 
-    flash("جشنواره غیرفعال شد")
+    flash("جشنواره حذف شد")
 
     return redirect(url_for("admin_panel.festivals"))
