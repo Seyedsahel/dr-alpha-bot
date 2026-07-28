@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from flask import Blueprint
 import jdatetime
 
+from app.extensions import db
 from app.models.available_slot import AvailableSlot
 
 bot_slots_bp = Blueprint(
@@ -21,8 +24,19 @@ def to_jalali_datetime_str(value):
 @bot_slots_bp.route("/slots", methods=["GET"])
 def get_available_slots():
 
+    now = datetime.now()
+
+    # حذف کامل اسلات‌های منقضی‌شده از دیتابیس، نه فقط پنهان کردنشان
+    AvailableSlot.query.filter(
+        AvailableSlot.start_time < now
+    ).delete(synchronize_session=False)
+
+    db.session.commit()
+
     slots = AvailableSlot.query.filter_by(
         is_booked=False
+    ).order_by(
+        AvailableSlot.start_time.asc()
     ).all()
 
     result = []

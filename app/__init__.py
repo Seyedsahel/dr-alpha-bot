@@ -27,6 +27,8 @@ from app.routes.bot import users_bp
 from app.routes.admin import admin_users_bp
 from app.routes.admin_panel import admin_panel_bp
 from app.routes.admin import admin_faqs_bp
+from app.routes.admin import admin_service_categories_bp, admin_doctors_bp, admin_clinic_info_bp
+from app.routes.bot import service_categories_bp, clinic_info_bp
 
 from app.extensions import limiter
 
@@ -65,11 +67,23 @@ def create_app():
     csrf.exempt(festivals_bp)   
     csrf.exempt(reminders_bp)
     csrf.exempt(users_bp)
+    csrf.exempt(admin_service_categories_bp)
+    csrf.exempt(admin_doctors_bp)
+    csrf.exempt(admin_clinic_info_bp)
+    csrf.exempt(service_categories_bp)
+    csrf.exempt(clinic_info_bp)
 
     os.makedirs(
         os.path.join(
             app.config["UPLOAD_FOLDER"],
             "festivals"
+        ), exist_ok=True
+    )
+
+    os.makedirs(
+        os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            "doctors"
         ), exist_ok=True
     )
 
@@ -211,6 +225,12 @@ def create_app():
         admin_panel_bp,
         url_prefix="/admin/panel"
     )
+
+    app.register_blueprint(admin_service_categories_bp, url_prefix="/api/admin")
+    app.register_blueprint(admin_doctors_bp, url_prefix="/api/admin")
+    app.register_blueprint(admin_clinic_info_bp, url_prefix="/api/admin")
+    app.register_blueprint(service_categories_bp, url_prefix="/api")
+    app.register_blueprint(clinic_info_bp, url_prefix="/api")
 
     # فیلتر jalali برای Jinja
     from app.utils.jalali import gregorian_to_jalali_str

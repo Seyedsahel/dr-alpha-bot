@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">اطلاعات مطب</h3>
+
+<div class="card p-3">
+    <form method="POST" class="row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-12">
+            <label class="form-label">آدرس</label>
+            <textarea name="address" class="form-control">{{ info.address or "" }}</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">شماره تلفن</label>
+            <input name="phone" value="{{ info.phone or '' }}" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">وب‌سایت</label>
+            <input name="website" value="{{ info.website or '' }}" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">اینستاگرام</label>
+            <input name="instagram" value="{{ info.instagram or '' }}" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">کانال بله</label>
+            <input name="bale_channel" value="{{ info.bale_channel or '' }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-dark w-100">ذخیره</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

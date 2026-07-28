@@ -89,3 +89,18 @@ def get_user(chat_id):
         "last_name": user.last_name,
         "phone": user.phone
     }, 200
+
+@users_bp.route(
+    "/users/admins",
+    methods=["GET"]
+)
+def get_admin_chat_ids():
+
+    admins = User.query.filter_by(is_admin=True).all()
+
+    result = [
+        {"chat_id": admin.chat_id}
+        for admin in admins
+    ]
+
+    return result, 200

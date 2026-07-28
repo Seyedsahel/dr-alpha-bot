@@ -26,7 +26,7 @@ class AvailableSlot(db.Model):
         default=datetime.utcnow
     )
 
-    appointment = db.relationship(
+    appointments = db.relationship(
         "Appointment",
         backref="slot",
-        uselist=False) #one to one
+        lazy=True) #one to many

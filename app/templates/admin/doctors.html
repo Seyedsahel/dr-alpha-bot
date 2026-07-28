@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h3 class="mb-4">پزشکان</h3>
+
+<div class="card p-3 mb-4">
+    <h5>افزودن پزشک جدید</h5>
+    <form method="POST" enctype="multipart/form-data" class="row g-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-3"><input name="name" class="form-control" placeholder="نام پزشک" required></div>
+        <div class="col-md-3"><input name="medical_license_number" class="form-control" placeholder="کد نظام پزشکی"></div>
+        <div class="col-md-3"><input type="file" name="photo" class="form-control"></div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">افزودن</button></div>
+    </form>
+</div>
+
+<div class="row g-3">
+    {% for doctor in doctors %}
+    <div class="col-md-4">
+        <div class="card p-2">
+            {% if doctor.photo_path %}
+                <img src="{{ url_for('uploads.uploaded_file', filename='doctors/' + doctor.photo_path) }}" class="img-fluid rounded mb-2">
+            {% endif %}
+            <form method="POST" action="{{ url_for('admin_panel.update_doctor', doctor_id=doctor.id) }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input name="name" value="{{ doctor.name }}" class="form-control form-control-sm mb-1">
+                <input name="medical_license_number" value="{{ doctor.medical_license_number or '' }}" class="form-control form-control-sm mb-1" placeholder="کد نظام پزشکی">
+                <input type="file" name="photo" class="form-control form-control-sm mb-1">
+                <div class="form-check mb-1">
+                    <input type="checkbox" name="is_active" class="form-check-input" {% if doctor.is_active %}checked{% endif %}>
+                    <label class="form-check-label">فعال</label>
+                </div>
+                <button class="btn btn-sm btn-dark w-100 mb-1">ذخیره</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin_panel.delete_doctor', doctor_id=doctor.id) }}" onsubmit="return confirm('غیرفعال شود؟');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-outline-danger w-100">غیرفعال</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center">پزشکی ثبت نشده است</p>
+    {% endfor %}
+</div>
+{% endblock %}

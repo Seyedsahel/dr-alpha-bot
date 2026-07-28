@@ -23,6 +23,9 @@ from app.utils.auth import login_required
 from app.extensions import limiter
 
 from app.utils.validators import safe_int
+from app.models.service_category import ServiceCategory
+from app.models.doctor import Doctor
+from app.models.clinic_info import ClinicInfo
 
 admin_panel_bp = Blueprint(
     "admin_panel",
@@ -120,6 +123,42 @@ def delete_user(user_id):
 
     return redirect(url_for("admin_panel.users"))
 
+@admin_panel_bp.route("/users/<int:user_id>/promote", methods=["POST"])
+@login_required
+def promote_user(user_id):
+
+    user = User.query.get(user_id)
+
+    if not user:
+        flash("کاربر یافت نشد")
+        return redirect(url_for("admin_panel.users"))
+
+    user.is_admin = True
+
+    db.session.commit()
+
+    flash(f"{user.first_name} به عنوان ادمین تنظیم شد")
+
+    return redirect(url_for("admin_panel.users"))
+
+
+@admin_panel_bp.route("/users/<int:user_id>/demote", methods=["POST"])
+@login_required
+def demote_user(user_id):
+
+    user = User.query.get(user_id)
+
+    if not user:
+        flash("کاربر یافت نشد")
+        return redirect(url_for("admin_panel.users"))
+
+    user.is_admin = False
+
+    db.session.commit()
+
+    flash(f"دسترسی ادمین {user.first_name} حذف شد")
+
+    return redirect(url_for("admin_panel.users"))
 
 # ---------- Slots ----------
 
@@ -237,7 +276,6 @@ def appointments():
 
     return render_template("admin/appointments.html", appointments=all_appointments)
 
-
 @admin_panel_bp.route("/appointments/<int:appointment_id>/status", methods=["POST"])
 @login_required
 def update_appointment(appointment_id):
@@ -254,20 +292,27 @@ def update_appointment(appointment_id):
         flash("وضعیت نامعتبر است")
         return redirect(url_for("admin_panel.appointments"))
 
-    appointment.status = status
+    if status == "confirmed":
 
-    if status == "rejected":
-        appointment.slot.is_booked = False
-        db.session.delete(appointment)
-    else:
+        if appointment.slot.is_booked:
+            flash("این زمان قبلاً برای درخواست دیگری تایید شده است")
+            return redirect(url_for("admin_panel.appointments"))
+
+        appointment.status = "confirmed"
         appointment.slot.is_booked = True
+
+    elif status == "rejected":
+
+        db.session.delete(appointment)
+
+    else:
+        appointment.status = status
 
     db.session.commit()
 
     flash("وضعیت نوبت بروزرسانی شد")
 
     return redirect(url_for("admin_panel.appointments"))
-
 
 # ---------- Consultations ----------
 
@@ -371,13 +416,20 @@ def services():
             flash("این خدمت قبلاً ثبت شده است")
             return redirect(url_for("admin_panel.services"))
 
+        category_id = (
+            safe_int(request.form.get("category_id"))
+            if request.form.get("category_id")
+            else None
+        )
+
         service = Service(
             name=name,
+            category_id=category_id,
             minimum_price=minimum_price,
             maximum_price=maximum_price,
             price=minimum_price,
             description=description,
-            recovery_days=recovery_days
+            recovery_days=recovery_days,
         )
 
         db.session.add(service)
@@ -388,8 +440,12 @@ def services():
         return redirect(url_for("admin_panel.services"))
 
     all_services = Service.query.order_by(Service.created_at.desc()).all()
+    categories=ServiceCategory.query.all()
 
-    return render_template("admin/services.html", services=all_services)
+    return render_template(
+        "admin/services.html",
+          services=all_services,
+          categories=categories)
 
 
 @admin_panel_bp.route("/services/<int:service_id>/update", methods=["POST"])
@@ -397,11 +453,16 @@ def services():
 def update_service(service_id):
 
     service = Service.query.get(service_id)
-
     if not service:
         flash("خدمت یافت نشد")
         return redirect(url_for("admin_panel.services"))
 
+    category_id = (
+        safe_int(request.form.get("category_id"))
+        if request.form.get("category_id")
+        else None
+    )
+    service.category_id = category_id
     service.name = request.form.get("name", service.name)
     service.description = request.form.get("description")
 
@@ -740,3 +801,192 @@ def delete_festival(festival_id):
     flash("جشنواره حذف شد")
 
     return redirect(url_for("admin_panel.festivals"))
+
+
+
+# ---------- Service Categories ----------
+
+@admin_panel_bp.route("/service-categories", methods=["GET", "POST"])
+@login_required
+def service_categories():
+
+    if request.method == "POST":
+
+        name = request.form.get("name")
+
+        if not name:
+            flash("نام دسته‌بندی الزامی است")
+            return redirect(url_for("admin_panel.service_categories"))
+
+        if ServiceCategory.query.filter_by(name=name).first():
+            flash("این دسته‌بندی قبلاً ثبت شده است")
+            return redirect(url_for("admin_panel.service_categories"))
+
+        db.session.add(ServiceCategory(name=name))
+        db.session.commit()
+
+        flash("دسته‌بندی جدید ثبت شد")
+
+        return redirect(url_for("admin_panel.service_categories"))
+
+    all_categories = ServiceCategory.query.all()
+
+    return render_template("admin/service_categories.html", categories=all_categories)
+
+
+@admin_panel_bp.route("/service-categories/<int:category_id>/delete", methods=["POST"])
+@login_required
+def delete_service_category(category_id):
+
+    category = ServiceCategory.query.get(category_id)
+
+    if not category:
+        flash("دسته‌بندی یافت نشد")
+        return redirect(url_for("admin_panel.service_categories"))
+
+    for service in category.services:
+        service.category_id = None
+
+    db.session.delete(category)
+    db.session.commit()
+
+    flash("دسته‌بندی حذف شد (خدمات آن به «بدون دسته‌بندی» منتقل شدند)")
+
+    return redirect(url_for("admin_panel.service_categories"))
+
+
+# ---------- Doctors ----------
+
+@admin_panel_bp.route("/doctors", methods=["GET", "POST"])
+@login_required
+def doctors():
+
+    if request.method == "POST":
+
+        name = request.form.get("name")
+        medical_license_number = request.form.get("medical_license_number")
+        image = request.files.get("photo")
+
+        if not name:
+            flash("نام پزشک الزامی است")
+            return redirect(url_for("admin_panel.doctors"))
+
+        filename = None
+
+        if image and image.filename:
+
+            if not allowed_file(image.filename):
+                flash("فرمت تصویر نامعتبر است")
+                return redirect(url_for("admin_panel.doctors"))
+
+            filename = save_image(
+                image,
+                os.path.join(current_app.config["UPLOAD_FOLDER"], "doctors")
+            )
+
+        doctor = Doctor(
+            name=name,
+            medical_license_number=medical_license_number,
+            photo_path=filename
+        )
+
+        db.session.add(doctor)
+        db.session.commit()
+
+        flash("پزشک جدید اضافه شد")
+
+        return redirect(url_for("admin_panel.doctors"))
+
+    all_doctors = Doctor.query.order_by(Doctor.created_at.desc()).all()
+
+    return render_template("admin/doctors.html", doctors=all_doctors)
+
+
+@admin_panel_bp.route("/doctors/<int:doctor_id>/update", methods=["POST"])
+@login_required
+def update_doctor(doctor_id):
+
+    doctor = Doctor.query.get(doctor_id)
+
+    if not doctor:
+        flash("پزشک یافت نشد")
+        return redirect(url_for("admin_panel.doctors"))
+
+    name = request.form.get("name")
+    medical_license_number = request.form.get("medical_license_number")
+
+    if name:
+        doctor.name = name
+
+    doctor.medical_license_number = medical_license_number
+
+    doctors_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "doctors")
+
+    image = request.files.get("photo")
+
+    if image and image.filename:
+
+        if not allowed_file(image.filename):
+            flash("فرمت تصویر نامعتبر است")
+            return redirect(url_for("admin_panel.doctors"))
+
+        delete_image(doctors_folder, doctor.photo_path)
+
+        doctor.photo_path = save_image(image, doctors_folder)
+
+    doctor.is_active = request.form.get("is_active") == "on"
+
+    db.session.commit()
+
+    flash("اطلاعات پزشک بروزرسانی شد")
+
+    return redirect(url_for("admin_panel.doctors"))
+
+
+@admin_panel_bp.route("/doctors/<int:doctor_id>/delete", methods=["POST"])
+@login_required
+def delete_doctor(doctor_id):
+
+    doctor = Doctor.query.get(doctor_id)
+
+    if not doctor:
+        flash("پزشک یافت نشد")
+        return redirect(url_for("admin_panel.doctors"))
+
+    doctor.is_active = False
+
+    db.session.commit()
+
+    flash("پزشک غیرفعال شد")
+
+    return redirect(url_for("admin_panel.doctors"))
+
+
+# ---------- Clinic Info ----------
+
+@admin_panel_bp.route("/clinic-info", methods=["GET", "POST"])
+@login_required
+def clinic_info():
+
+    info = ClinicInfo.query.first()
+
+    if not info:
+        info = ClinicInfo()
+        db.session.add(info)
+        db.session.commit()
+
+    if request.method == "POST":
+
+        info.address = request.form.get("address")
+        info.phone = request.form.get("phone")
+        info.website = request.form.get("website")
+        info.instagram = request.form.get("instagram")
+        info.bale_channel = request.form.get("bale_channel")
+
+        db.session.commit()
+
+        flash("اطلاعات مطب بروزرسانی شد")
+
+        return redirect(url_for("admin_panel.clinic_info"))
+
+    return render_template("admin/clinic_info.html", info=info)

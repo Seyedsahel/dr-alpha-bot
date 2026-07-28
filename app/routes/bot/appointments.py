@@ -1,7 +1,5 @@
 from flask import Blueprint, request
 
-from sqlalchemy.exc import IntegrityError
-
 from app.extensions import db
 from app.models.appoinment import Appointment
 from app.models.available_slot import AvailableSlot
@@ -46,23 +44,14 @@ def create_appointment():
         user_id=user_id,
         slot_id=slot_id,
         service_id=service_id,
-        description=description
+        description=description,
+        status="pending"
     )
 
-    slot.is_booked = True
-
+    # توجه: slot.is_booked اینجا دیگر True نمی‌شود.
+    # اسلات فقط زمانی که ادمین یک درخواست را «تایید» کند رزرو‌شده اعلام می‌شود.
     db.session.add(appointment)
-
-    try:
-        db.session.commit()
-
-    except IntegrityError:
-
-        db.session.rollback()
-
-        return {
-            "error": "این نوبت لحظاتی پیش توسط شخص دیگری رزرو شد"
-        }, 409
+    db.session.commit()
 
     return {
         "message": "نوبت ثبت شد",

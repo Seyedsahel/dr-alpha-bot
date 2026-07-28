@@ -3,7 +3,7 @@
 <h3 class="mb-4">کاربران</h3>
 <table class="table table-bordered table-hover bg-white">
     <thead>
-        <tr><th>#</th><th>نام</th><th>شماره تلفن</th><th>Chat ID</th><th>تاریخ عضویت</th><th>عملیات</th></tr>
+        <tr><th>#</th><th>نام</th><th>شماره تلفن</th><th>Chat ID</th><th>تاریخ عضویت</th><th>ادمین</th><th>عملیات</th></tr>
     </thead>
     <tbody>
         {% for user in users %}
@@ -14,6 +14,24 @@
             <td>{{ user.chat_id }}</td>
             <td>{{ user.created_at | jalali }}</td>
             <td>
+                {% if user.is_admin %}
+                    <span class="badge bg-success">ادمین</span>
+                {% else %}
+                    <span class="badge bg-secondary">کاربر عادی</span>
+                {% endif %}
+            </td>
+            <td class="d-flex gap-1">
+                {% if user.is_admin %}
+                <form method="POST" action="{{ url_for('admin_panel.demote_user', user_id=user.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-secondary">حذف دسترسی ادمین</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('admin_panel.promote_user', user_id=user.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-success">تبدیل به ادمین</button>
+                </form>
+                {% endif %}
                 <form method="POST" action="{{ url_for('admin_panel.delete_user', user_id=user.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-danger">حذف کاربر</button>
@@ -21,7 +39,7 @@
             </td>
         </tr>
         {% else %}
-        <tr><td colspan="5" class="text-center">کاربری ثبت نشده است</td></tr>
+        <tr><td colspan="7" class="text-center">کاربری ثبت نشده است</td></tr>
         {% endfor %}
     </tbody>
 </table>

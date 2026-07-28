@@ -10,6 +10,16 @@
         .sidebar a { color: #ced4da; display: block; padding: 10px 16px; text-decoration: none; }
         .sidebar a:hover { background: #343a40; color: #fff; }
         .card-stat { border-radius: 12px; }
+        footer { background: #212529; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px;}
+        footer p:first-child {
+            font-size: 12px;
+            margin-bottom: -1px;
+        }
+
+        footer p:last-child {
+            font-size: 12px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +32,10 @@
         <a href="{{ url_for('admin_panel.appointments') }}">📅 نوبت‌ها</a>
         <a href="{{ url_for('admin_panel.consultations') }}">📞 درخواست‌های مشاوره</a>
         <a href="{{ url_for('admin_panel.reminders') }}">⏰ یادآوری‌ها</a>
+        <a href="{{ url_for('admin_panel.service_categories') }}">🗂️ دسته‌بندی خدمات</a>
         <a href="{{ url_for('admin_panel.services') }}">💉 خدمات</a>
+        <a href="{{ url_for('admin_panel.doctors') }}">👨‍⚕️ پزشکان</a>
+        <a href="{{ url_for('admin_panel.clinic_info') }}">🏥 اطلاعات مطب</a>
         <a href="{{ url_for('admin_panel.faqs') }}">❓ سوالات متداول</a>
         <a href="{{ url_for('admin_panel.aftercares') }}">🩹 مراقبت‌های بعد از خدمات</a>
         <a href="{{ url_for('admin_panel.festivals') }}">🎉 جشنواره‌ها</a>
@@ -39,5 +52,13 @@
         {% block content %}{% endblock %}
     </div>
 </div>
+<footer>
+    <p>
+        کلیه حقوق برای مطب دکتر محمد حسین کامرانی (مطب دکتر آلفا) محفوظ است.
+    </p>
+    <p>
+        این پروژه به سفارش شرکت مبین طب با شماره ثبت ۵۱۸۶ انجام شده است.
+    </p>
+</footer>
 </body>
 </html>

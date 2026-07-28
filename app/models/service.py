@@ -30,6 +30,17 @@ class Service(db.Model):
         db.BigInteger,
         nullable=True
     )
+    
+    category_id = db.Column(
+        db.Integer,
+        db.ForeignKey("service_categories.id"),
+        nullable=True
+    )
+
+    category = db.relationship(
+        "ServiceCategory",
+        backref="services"
+    )
 
     description = db.Column(
         db.Text,

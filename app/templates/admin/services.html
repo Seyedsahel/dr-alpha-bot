@@ -10,6 +10,14 @@
     <form method="POST" class="row g-2">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="col-md-3"><input name="name" class="form-control" placeholder="نام خدمت" required></div>
+        <div class="col-md-2">
+            <select name="category_id" class="form-select">
+                <option value="">بدون دسته‌بندی</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="col-md-2"><input name="minimum_price" type="number" class="form-control" placeholder="حداقل قیمت"></div>
         <div class="col-md-2"><input name="maximum_price" type="number" class="form-control" placeholder="حداکثر قیمت (اختیاری)"></div>
         <div class="col-md-2"><input name="description" class="form-control" placeholder="توضیحات"></div>
@@ -19,7 +27,7 @@
 </div>
 
 <table class="table table-bordered table-hover bg-white">
-    <thead><tr><th>#</th><th>نام</th><th>حداقل قیمت</th><th>حداکثر قیمت</th><th>نمایش قیمت</th><th>توضیحات</th><th>فاصله تا ویزیت بعدی </th><th>فعال</th><th>عملیات</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th>نام</th><th>دسته‌بندی</th><th>حداقل قیمت</th><th>حداکثر قیمت</th><th>نمایش قیمت</th><th>توضیحات</th><th>فاصله تا ویزیت بعدی </th><th>فعال</th><th>عملیات</th><th></th></tr></thead>
     <tbody>
         {% for service in services %}
         <tr>
@@ -27,6 +35,21 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <td>{{ service.id }}</td>
             <td><input name="name" value="{{ service.name }}" class="form-control form-control-sm"></td>
+            <td>
+                <select name="category_id" class="form-select form-select-sm">
+                    <option value="">بدون دسته‌بندی</option>
+
+                    {% for category in categories %}
+                    <option
+                        value="{{ category.id }}"
+                        {% if service.category_id == category.id %}selected{% endif %}
+                    >
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+            </td>
             <td><input name="minimum_price" value="{{ service.minimum_price or '' }}" class="form-control form-control-sm" style="width:110px"></td>
             <td><input name="maximum_price" value="{{ service.maximum_price or '' }}" class="form-control form-control-sm" style="width:110px"></td>
             <td>{{ service | service_price }}</td>

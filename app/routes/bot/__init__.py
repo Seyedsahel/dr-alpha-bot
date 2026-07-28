@@ -7,3 +7,5 @@ from .aftercares import aftercares_bp
 from .festivals import festivals_bp
 from .reminder import reminders_bp
 from .users import users_bp
+from .service_categories import service_categories_bp
+from .clinic_info import clinic_info_bp

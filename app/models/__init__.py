@@ -7,3 +7,6 @@ from .festival import Festival
 from .service import Service
 from .faq import FAQ
 from .aftercare import AfterCare
+from .service_category import ServiceCategory
+from .doctor import Doctor
+from .clinic_info import ClinicInfo

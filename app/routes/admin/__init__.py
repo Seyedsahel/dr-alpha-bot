@@ -8,3 +8,6 @@ from .festivals import admin_festivals_bp
 from .reminders import admin_reminders_bp
 from .users import admin_users_bp
 from .auth import admin_auth_bp
+from .service_categories import admin_service_categories_bp
+from .doctors import admin_doctors_bp
+from .clinic_info import admin_clinic_info_bp
