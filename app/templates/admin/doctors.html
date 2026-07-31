@@ -35,6 +35,10 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button class="btn btn-sm btn-outline-danger w-100">غیرفعال</button>
             </form>
+            <form method="POST" action="{{ url_for('admin_panel.delete_doctor_permanently', doctor_id=doctor.id) }}" onsubmit="return confirm('این پزشک و عکسش برای همیشه حذف می‌شود و قابل بازگشت نیست. مطمئنی؟');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-danger w-100 mt-1">حذف کامل (غیرقابل بازگشت)</button>
+            </form>
         </div>
     </div>
     {% else %}

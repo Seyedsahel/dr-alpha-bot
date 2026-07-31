@@ -44,3 +44,7 @@ class User(db.Model):
         "Reminder",
         backref="user",
         lazy=True)
+
+    menu_version = db.Column(
+        db.Integer,
+        nullable=True)

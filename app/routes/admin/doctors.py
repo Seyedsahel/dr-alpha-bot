@@ -136,3 +136,25 @@ def delete_doctor(doctor_id):
     db.session.commit()
 
     return {"message": "doctor deactivated"}, 200
+
+@admin_doctors_bp.route(
+    "/doctors/<int:doctor_id>/permanent",
+    methods=["DELETE"]
+)
+def delete_doctor_permanently(doctor_id):
+
+    doctor = Doctor.query.get(doctor_id)
+
+    if not doctor:
+        return {"error": "doctor not found"}, 404
+
+    if doctor.photo_path:
+
+        doctors_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "doctors")
+
+        delete_image(doctors_folder, doctor.photo_path)
+
+    db.session.delete(doctor)
+    db.session.commit()
+
+    return {"message": "doctor permanently deleted"}, 200

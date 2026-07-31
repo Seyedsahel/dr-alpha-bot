@@ -45,7 +45,8 @@ def create_or_get_user():
             "chat_id": user.chat_id,
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "phone": user.phone
+            "phone": user.phone,
+            "menu_version": user.menu_version
         }, 200
 
     user = User(
@@ -63,7 +64,8 @@ def create_or_get_user():
         "chat_id": user.chat_id,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "phone": user.phone
+        "phone": user.phone,
+        "menu_version": user.menu_version
     }, 201
 
 
@@ -87,7 +89,8 @@ def get_user(chat_id):
         "chat_id": user.chat_id,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "phone": user.phone
+        "phone": user.phone,
+        "menu_version": user.menu_version
     }, 200
 
 @users_bp.route(
@@ -104,3 +107,28 @@ def get_admin_chat_ids():
     ]
 
     return result, 200
+
+
+@users_bp.route(
+    "/users/<string:chat_id>/menu-version",
+    methods=["PATCH"]
+)
+def update_menu_version(chat_id):
+
+    user = User.query.filter_by(chat_id=chat_id).first()
+
+    if not user:
+        return {"error": "user not found"}, 404
+
+    data = request.get_json()
+
+    menu_version = data.get("menu_version")
+
+    if menu_version is None:
+        return {"error": "menu_version is required"}, 400
+
+    user.menu_version = menu_version
+
+    db.session.commit()
+
+    return {"message": "menu_version updated"}, 200

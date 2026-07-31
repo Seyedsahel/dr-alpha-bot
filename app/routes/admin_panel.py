@@ -961,6 +961,28 @@ def delete_doctor(doctor_id):
 
     return redirect(url_for("admin_panel.doctors"))
 
+@admin_panel_bp.route("/doctors/<int:doctor_id>/delete-permanently", methods=["POST"])
+@login_required
+def delete_doctor_permanently(doctor_id):
+
+    doctor = Doctor.query.get(doctor_id)
+
+    if not doctor:
+        flash("پزشک یافت نشد")
+        return redirect(url_for("admin_panel.doctors"))
+
+    if doctor.photo_path:
+
+        doctors_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], "doctors")
+
+        delete_image(doctors_folder, doctor.photo_path)
+
+    db.session.delete(doctor)
+    db.session.commit()
+
+    flash("پزشک به‌طور کامل حذف شد")
+
+    return redirect(url_for("admin_panel.doctors"))
 
 # ---------- Clinic Info ----------
 
